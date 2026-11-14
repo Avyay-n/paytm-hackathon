@@ -17,7 +17,7 @@ export const SettlementChart: React.FC<SettlementChartProps> = ({
   const maxVolume = Math.max(...settlements.map((s) => s.gross_volume), 8000);
 
   return (
-    <SpotlightCard className="p-4">
+    <SpotlightCard className="p-4 bg-gradient-to-br from-blue-50/60 via-slate-50 to-white border-2 border-slate-200 shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">

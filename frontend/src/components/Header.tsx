@@ -1,7 +1,6 @@
 import React from 'react';
 import { Building2 } from 'lucide-react';
 import { Merchant } from '../types';
-import { GooeyNav } from './GooeyNav';
 
 interface HeaderProps {
   merchants: Merchant[];
@@ -19,21 +18,6 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const selected = merchants.find((m) => m.id === selectedMerchantId);
   const nbfcPartner = selected?.loans?.[0]?.lender_nbfc_partner || 'SMFG India Credit';
-
-  // Map merchants to items for React Bits GooeyNav
-  const gooeyItems = merchants.map((m) => {
-    const badge =
-      m.id === 'MCH_001'
-        ? 'Weather Shock'
-        : m.id === 'MCH_002'
-        ? 'Bank Glitch'
-        : 'Fraud Risk';
-    return {
-      label: `${m.name.split(' ')[0]} (${badge})`,
-    };
-  });
-
-  const activeIndex = Math.max(0, merchants.findIndex((m) => m.id === selectedMerchantId));
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-xs">
@@ -70,35 +54,61 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Center Persona Switcher using React Bits <GooeyNav /> */}
-      <div className="flex items-center justify-center">
-        {gooeyItems.length > 0 && (
-          <GooeyNav
-            items={gooeyItems}
-            activeIndex={activeIndex}
-            onChange={(index) => {
-              if (merchants[index]) {
-                onSelectMerchant(merchants[index].id);
-              }
-            }}
-            theme="light"
-            color="#002970"
-            activeTextColor="#FFFFFF"
-            colors={['#002970', '#00BAF2', '#003B95', '#25D366']}
-            size="sm"
-            frame={true}
-            animationTime={550}
-            particleCount={14}
-            spread={48}
-            timeVariance={250}
-            gooeyness={0.5}
-            wobble={0.4}
-            hoverEffect={true}
-          />
-        )}
+      {/* Center Persona Switcher with Distinct Colors for Ramesh (Blue), Priya (Amber), Vikram (Rose) */}
+      <div className="flex items-center gap-1.5 rounded-full bg-slate-100/90 p-1 border border-slate-200 shadow-inner">
+        {merchants.map((m) => {
+          const isSelected = m.id === selectedMerchantId;
+
+          // Color themes per merchant
+          let activeBtnClass = '';
+          let inactiveBtnClass = '';
+          let badgeActive = '';
+          let badgeInactive = '';
+          let badgeText = '';
+
+          if (m.id === 'MCH_001') {
+            // Ramesh: Blue/Cyan (IMD Weather Alert)
+            badgeText = 'SMA-0 WEATHER SHOCK';
+            activeBtnClass = 'bg-[#002970] text-white shadow-md ring-2 ring-[#00BAF2] scale-102';
+            inactiveBtnClass = 'text-[#002970] bg-blue-100/90 hover:bg-blue-200 border border-blue-300 shadow-xs';
+            badgeActive = 'bg-[#00BAF2] text-[#002970] font-black shadow-xs';
+            badgeInactive = 'bg-blue-200 text-[#002970] font-bold border border-blue-300';
+          } else if (m.id === 'MCH_002') {
+            // Priya: Amber/Gold (NPCI Tech Glitch)
+            badgeText = 'BANK GLITCH';
+            activeBtnClass = 'bg-amber-600 text-white shadow-md ring-2 ring-amber-300 scale-102';
+            inactiveBtnClass = 'text-amber-900 bg-amber-100/90 hover:bg-amber-200 border border-amber-300 shadow-xs';
+            badgeActive = 'bg-amber-100 text-amber-950 font-black shadow-xs';
+            badgeInactive = 'bg-amber-200 text-amber-900 font-bold border border-amber-300';
+          } else {
+            // Vikram: Crimson/Rose (SMA-2 Solitary Divergence)
+            badgeText = 'SMA-2 FRAUD RISK';
+            activeBtnClass = 'bg-rose-600 text-white shadow-md ring-2 ring-rose-300 scale-102';
+            inactiveBtnClass = 'text-rose-900 bg-rose-100/90 hover:bg-rose-200 border border-rose-300 shadow-xs';
+            badgeActive = 'bg-rose-100 text-rose-950 font-black shadow-xs';
+            badgeInactive = 'bg-rose-200 text-rose-900 font-bold border border-rose-300';
+          }
+
+          return (
+            <button
+              key={m.id}
+              onClick={() => onSelectMerchant(m.id)}
+              className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 active:scale-98 ${
+                isSelected ? activeBtnClass : inactiveBtnClass
+              }`}
+            >
+              <span className="tracking-wide">{m.name.split(' ')[0]}</span>
+              <span className={`rounded-full px-2 py-0.5 text-[9px] uppercase tracking-wider ${
+                isSelected ? badgeActive : badgeInactive
+              }`}>
+                {badgeText}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Right spacer to keep center navbar perfectly centered (chips removed as requested) */}
+      {/* Right spacer for centering */}
       <div className="w-12 hidden md:block" />
     </header>
   );

@@ -254,6 +254,39 @@ export const App: React.FC = () => {
   const isEscalated = currentLoan?.status === 'ESCALATED' || hitlDossier !== null;
   const dpd = currentLoan?.days_past_due || 0;
 
+  const getPersonaTheme = (merchantId: string) => {
+    if (merchantId === 'MCH_001') {
+      return {
+        cardBg: 'bg-gradient-to-r from-blue-50/95 via-sky-50/40 to-white border-2 border-blue-200/90 shadow-sm',
+        avatarBg: 'bg-[#002970] text-white ring-2 ring-[#00BAF2]',
+        badgeBg: 'bg-blue-100 text-[#002970] border-blue-300 font-bold',
+        titleColor: 'text-[#002970]',
+        diagBg: 'bg-gradient-to-br from-blue-50/95 via-sky-50/40 to-white border-2 border-blue-200/90',
+        diagTitle: 'text-[#002970]',
+      };
+    } else if (merchantId === 'MCH_002') {
+      return {
+        cardBg: 'bg-gradient-to-r from-amber-50/95 via-orange-50/40 to-white border-2 border-amber-200/90 shadow-sm',
+        avatarBg: 'bg-amber-600 text-white ring-2 ring-amber-300',
+        badgeBg: 'bg-amber-100 text-amber-900 border-amber-300 font-bold',
+        titleColor: 'text-amber-900',
+        diagBg: 'bg-gradient-to-br from-amber-50/95 via-orange-50/40 to-white border-2 border-amber-200/90',
+        diagTitle: 'text-amber-900',
+      };
+    } else {
+      return {
+        cardBg: 'bg-gradient-to-r from-rose-50/95 via-red-50/40 to-white border-2 border-rose-200/90 shadow-sm',
+        avatarBg: 'bg-rose-600 text-white ring-2 ring-rose-300',
+        badgeBg: 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
+        titleColor: 'text-rose-900',
+        diagBg: 'bg-gradient-to-br from-rose-50/95 via-red-50/40 to-white border-2 border-rose-200/90',
+        diagTitle: 'text-rose-900',
+      };
+    }
+  };
+
+  const personaTheme = getPersonaTheme(selectedMerchantId);
+
   const bentoItems: MagicBentoItem[] = [
     {
       id: 'telemetry_analytics',
@@ -316,7 +349,7 @@ export const App: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 pb-12">
+    <div className="min-h-screen bg-[#EEF2F6] text-slate-900 pb-12">
       {/* Header with Paytm LSP Badge */}
       <Header
         merchants={merchants}
@@ -331,36 +364,36 @@ export const App: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 pt-5">
         {/* Case Header Summary Card (Context at a glance) */}
         {currentMerchant && currentLoan && (
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs mb-5">
+          <div className={`rounded-xl p-5 mb-5 ${personaTheme.cardBg}`}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#002970] text-white font-extrabold text-base shadow-xs">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-xl text-white font-extrabold text-base shadow-sm ${personaTheme.avatarBg}`}>
                   {currentMerchant.name.charAt(0)}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base font-bold text-[#002970]">
+                    <h2 className={`text-base font-bold ${personaTheme.titleColor}`}>
                       {currentMerchant.business_name}
                     </h2>
-                    <span className="rounded bg-blue-50 px-2 py-0.5 font-mono text-[11px] font-bold text-[#002970] border border-blue-200">
+                    <span className="rounded bg-white/90 px-2 py-0.5 font-mono text-[11px] font-bold text-slate-800 border border-slate-300 shadow-xs">
                       Loan: {currentLoan.loan_id}
                     </span>
-                    <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600 font-medium">
+                    <span className="rounded bg-white/80 px-2 py-0.5 text-[11px] text-slate-700 font-semibold border border-slate-200">
                       {currentMerchant.business_type}
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 mt-1">
                     <span className="flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                      <MapPin className="h-3.5 w-3.5 text-slate-500" />
                       Pin Code {currentMerchant.pin_code} ({currentMerchant.city})
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
-                      <Building2 className="h-3.5 w-3.5 text-slate-400" />
-                      Lender: <strong className="text-slate-700">{currentLoan.lender_nbfc_partner}</strong>
+                      <Building2 className="h-3.5 w-3.5 text-slate-500" />
+                      Lender: <strong className="text-slate-800">{currentLoan.lender_nbfc_partner}</strong>
                     </span>
                     <span>•</span>
-                    <span>Language: <strong className="text-slate-700">{currentMerchant.preferred_language}</strong></span>
+                    <span>Language: <strong className="text-slate-800">{currentMerchant.preferred_language}</strong></span>
                   </div>
                 </div>
               </div>
@@ -368,13 +401,13 @@ export const App: React.FC = () => {
               {/* Status and Rapid Cured Badge */}
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Account Status</span>
-                  <span className={`inline-block font-mono text-xs font-bold px-2.5 py-1 rounded-md border ${
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Account Status</span>
+                  <span className={`inline-block font-mono text-xs font-bold px-3 py-1 rounded-md border shadow-xs ${
                     isCured
-                      ? 'bg-blue-50 text-[#002970] border-blue-200'
+                      ? 'bg-blue-100 text-[#002970] border-blue-300 font-extrabold'
                       : isEscalated
-                      ? 'bg-rose-50 text-rose-800 border-rose-200'
-                      : 'bg-amber-50 text-amber-900 border-amber-200'
+                      ? 'bg-rose-100 text-rose-900 border-rose-300 font-extrabold'
+                      : 'bg-amber-100 text-amber-900 border-amber-300 font-extrabold'
                   }`}>
                     {isCured ? 'SMA-0 (CURED - Restructured)' : currentLoan.sma_status}
                   </span>
@@ -385,13 +418,13 @@ export const App: React.FC = () => {
         )}
 
         {/* Clean Structured View Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-6 overflow-x-auto">
+        <div className="flex items-center gap-1.5 rounded-xl bg-slate-200/90 p-1.5 border border-slate-300 shadow-inner mb-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('OVERVIEW')}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
               activeTab === 'OVERVIEW'
-                ? 'bg-[#002970] text-white shadow-xs'
-                : 'text-slate-600 hover:text-[#002970] hover:bg-slate-100'
+                ? 'bg-[#002970] text-white shadow-sm'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-white/80'
             }`}
           >
             <LayoutDashboard className="h-4 w-4" />
@@ -402,8 +435,8 @@ export const App: React.FC = () => {
             onClick={() => setActiveTab('CHAT_SOUNDBOX')}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
               activeTab === 'CHAT_SOUNDBOX'
-                ? 'bg-[#002970] text-white shadow-xs'
-                : 'text-slate-600 hover:text-[#002970] hover:bg-slate-100'
+                ? 'bg-[#002970] text-white shadow-sm'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-white/80'
             }`}
           >
             <MessageSquare className="h-4 w-4" />
@@ -414,8 +447,8 @@ export const App: React.FC = () => {
             onClick={() => setActiveTab('TELEMETRY')}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
               activeTab === 'TELEMETRY'
-                ? 'bg-[#002970] text-white shadow-xs'
-                : 'text-slate-600 hover:text-[#002970] hover:bg-slate-100'
+                ? 'bg-[#002970] text-white shadow-sm'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-white/80'
             }`}
           >
             <BarChart3 className="h-4 w-4" />
@@ -426,8 +459,8 @@ export const App: React.FC = () => {
             onClick={() => setActiveTab('COMPLIANCE')}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
               activeTab === 'COMPLIANCE'
-                ? 'bg-[#002970] text-white shadow-xs'
-                : 'text-slate-600 hover:text-[#002970] hover:bg-slate-100'
+                ? 'bg-[#002970] text-white shadow-sm'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-white/80'
             }`}
           >
             <ShieldCheck className="h-4 w-4" />
@@ -448,16 +481,16 @@ export const App: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <SpotlightCard className="p-4">
+                <SpotlightCard className="p-4 bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white border-2 border-emerald-200/90 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-emerald-800 tracking-wider">
                       Recovered Cash Flow
                     </span>
-                    <div className="p-1.5 rounded-lg bg-blue-50 text-[#002970]">
+                    <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800">
                       <TrendingUp className="h-4 w-4" />
                     </div>
                   </div>
-                  <div className="mt-2 text-2xl font-extrabold text-[#002970]">
+                  <div className="mt-2 text-2xl font-extrabold text-emerald-900">
                     <AnimatedCounter
                       value={isCured ? 430000 : 385000}
                       isCurrency={true}
@@ -465,58 +498,58 @@ export const App: React.FC = () => {
                       duration={1000}
                     />
                   </div>
-                  <span className="text-xs text-slate-500 font-medium mt-0.5 block">
+                  <span className="text-xs text-emerald-700 font-bold mt-0.5 block">
                     +₹45,000 Restructured Today
                   </span>
                 </SpotlightCard>
 
-                <SpotlightCard className="p-4">
+                <SpotlightCard className="p-4 bg-gradient-to-br from-blue-50 via-sky-50/40 to-white border-2 border-blue-200/90 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-[#002970] tracking-wider">
                       SMA-0 &rarr; NPA Cured
                     </span>
-                    <div className="p-1.5 rounded-lg bg-blue-50 text-[#002970]">
+                    <div className="p-1.5 rounded-lg bg-blue-100 text-[#002970]">
                       <CheckCircle2 className="h-4 w-4" />
                     </div>
                   </div>
                   <div className="mt-2 text-2xl font-extrabold text-[#002970]">
                     <AnimatedCounter value={isCured ? 7 : 6} suffix=" Merchants" duration={800} />
                   </div>
-                  <span className="text-xs text-slate-500 font-medium mt-0.5 block">
+                  <span className="text-xs text-blue-800 font-bold mt-0.5 block">
                     Zero Defaults Recorded
                   </span>
                 </SpotlightCard>
 
-                <SpotlightCard className="p-4">
+                <SpotlightCard className="p-4 bg-gradient-to-br from-indigo-50 via-purple-50/40 to-white border-2 border-indigo-200/90 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-indigo-800 tracking-wider">
                       Autonomous Restructure
                     </span>
-                    <div className="p-1.5 rounded-lg bg-blue-50 text-[#002970]">
+                    <div className="p-1.5 rounded-lg bg-indigo-100 text-indigo-800">
                       <Zap className="h-4 w-4" />
                     </div>
                   </div>
-                  <div className="mt-2 text-2xl font-extrabold text-[#002970]">
+                  <div className="mt-2 text-2xl font-extrabold text-indigo-900">
                     <AnimatedCounter value={88.4} decimals={1} suffix="%" duration={1000} />
                   </div>
-                  <span className="text-xs text-slate-500 font-medium mt-0.5 block">
+                  <span className="text-xs text-indigo-700 font-bold mt-0.5 block">
                     Zero Human Tele-calls
                   </span>
                 </SpotlightCard>
 
-                <SpotlightCard className="p-4">
+                <SpotlightCard className="p-4 bg-gradient-to-br from-amber-50 via-yellow-50/40 to-white border-2 border-amber-200/90 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-amber-800 tracking-wider">
                       RBI Compliance Rate
                     </span>
-                    <div className="p-1.5 rounded-lg bg-blue-50 text-[#002970]">
+                    <div className="p-1.5 rounded-lg bg-amber-100 text-amber-800">
                       <ShieldCheck className="h-4 w-4" />
                     </div>
                   </div>
-                  <div className="mt-2 text-2xl font-extrabold text-[#002970]">
+                  <div className="mt-2 text-2xl font-extrabold text-amber-900">
                     <AnimatedCounter value={100} suffix="%" duration={600} />
                   </div>
-                  <span className="text-xs text-slate-500 font-medium mt-0.5 block">
+                  <span className="text-xs text-amber-800 font-bold mt-0.5 block">
                     100% Audit Adherence
                   </span>
                 </SpotlightCard>
@@ -550,10 +583,10 @@ export const App: React.FC = () => {
                 </div>
 
                 {/* Case Diagnostic Summary */}
-                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs flex flex-col justify-between">
+                <div className={`rounded-xl p-5 shadow-sm flex flex-col justify-between ${personaTheme.diagBg}`}>
                   <div>
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
-                      <h4 className="text-xs font-bold text-[#002970] uppercase">
+                    <div className="flex items-center justify-between border-b border-black/5 pb-3 mb-3">
+                      <h4 className={`text-xs font-bold uppercase ${personaTheme.diagTitle}`}>
                         Autonomous Diagnostic Brief
                       </h4>
                       <span className="font-mono text-xs text-slate-500">
@@ -561,25 +594,31 @@ export const App: React.FC = () => {
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-700 leading-relaxed">
-                      {isEscalated ? (
-                        <span className="text-rose-900 font-medium">
+                    <p className="text-xs leading-relaxed">
+                      {selectedMerchantId === 'MCH_003' || isEscalated ? (
+                        <span className="text-rose-950 font-medium">
                           <strong>High Risk Flagged:</strong> Vikram Reddy has generated ₹0.00 in UPI settlements for 25 consecutive days with the Soundbox offline, while 98% of neighborhood peers are trading normally. This severe divergence indicates possible shop abandonment or cash diversion.
                         </span>
+                      ) : selectedMerchantId === 'MCH_002' ? (
+                        <span className="text-amber-950 font-medium">
+                          <strong>Bank Gateway Glitch Diagnosed:</strong> Priya Sharma experienced a transient NPCI / HDFC CBS sweep timeout on Day 28. Her local peer cluster is 100% healthy, and she maintains an active Soundbox 4.0 stream. Automated retry scheduled without borrower distress.
+                        </span>
                       ) : (
-                        <span className="text-slate-700">
-                          <strong>Legitimate Shock Diagnosed:</strong> Ramesh Kirana experienced a -45% drop in settlements over the past 7 days. Local telemetry confirms 83.3% of neighbor shops in Pin Code 500081 also dipped due to IMD monsoon waterlogging and metro trench work. Zero fraud detected.
+                        <span className="text-sky-950 font-medium">
+                          <strong>Legitimate Regional Shock Diagnosed:</strong> Ramesh Kirana experienced a -45% drop in settlements over the past 7 days. Local telemetry confirms 83.3% of neighbor shops in Pin Code 500081 also dipped due to IMD monsoon waterlogging and metro trench work. Zero fraud detected.
                         </span>
                       )}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <div className="pt-4 border-t border-black/5 flex items-center justify-between">
                     <div className="text-xs">
-                      <span className="text-slate-400 block text-[10px] uppercase">Recommended Action</span>
-                      <strong className="text-[#002970]">
-                        {isEscalated
+                      <span className="text-slate-500 block text-[10px] uppercase font-bold">Recommended Action</span>
+                      <strong className={personaTheme.diagTitle}>
+                        {selectedMerchantId === 'MCH_003' || isEscalated
                           ? 'Escalate to Field Recovery Agent (DRA)'
+                          : selectedMerchantId === 'MCH_002'
+                          ? 'Initiate Automated T+1 Sweep Retry (Zero Penal Fees)'
                           : isCured
                           ? 'Step-Down EDI Committed (₹150/day)'
                           : 'Offer Dual Restructure: ₹150/day OR 10% QR Sweep'}
@@ -588,7 +627,13 @@ export const App: React.FC = () => {
 
                     <button
                       onClick={() => setActiveTab('CHAT_SOUNDBOX')}
-                      className="rounded-lg bg-[#002970] text-white px-3.5 py-1.5 text-xs font-semibold hover:bg-[#003B95] transition-colors"
+                      className={`rounded-lg px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition-colors ${
+                        selectedMerchantId === 'MCH_002'
+                          ? 'bg-amber-600 hover:bg-amber-700'
+                          : selectedMerchantId === 'MCH_003'
+                          ? 'bg-rose-600 hover:bg-rose-700'
+                          : 'bg-[#002970] hover:bg-[#003B95]'
+                      }`}
                     >
                       View Live Chat &rarr;
                     </button>
@@ -699,7 +744,7 @@ export const App: React.FC = () => {
                   isRestructured={isCured}
                 />
 
-                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+                <div className="rounded-xl border-2 border-blue-200/90 bg-gradient-to-br from-blue-50/80 via-sky-50/30 to-white p-4 shadow-sm">
                   <h4 className="text-xs font-bold text-[#002970] uppercase tracking-wide mb-1">
                     How Soundbox Confirmation Works
                   </h4>
@@ -710,7 +755,7 @@ export const App: React.FC = () => {
               </div>
 
               {/* Chat Stream on Right (7 cols) */}
-              <div className="md:col-span-7 h-[560px]">
+              <div className="md:col-span-7 h-[560px] rounded-xl border-2 border-slate-300 shadow-sm overflow-hidden">
                 <WhatsAppChat
                   merchantName={currentMerchant.name}
                   businessName={currentMerchant.business_name}
@@ -752,7 +797,7 @@ export const App: React.FC = () => {
             </div>
 
             {/* Explanatory Guide Box */}
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+            <div className="rounded-xl border-2 border-indigo-200/90 bg-gradient-to-br from-indigo-50/80 via-purple-50/30 to-white p-5 shadow-sm">
               <h4 className="text-xs font-bold text-[#002970] uppercase mb-1">
                 The Core Innovation: Distinguishing Weather Distress from Cash Diversion Fraud
               </h4>
@@ -783,7 +828,7 @@ export const App: React.FC = () => {
 
             {/* Live SQL Loan Ledger Card */}
             {currentLoan && (
-              <SpotlightCard className="p-5">
+              <SpotlightCard className="p-5 bg-gradient-to-br from-blue-50/80 via-slate-50 to-white border-2 border-blue-200/90 shadow-sm">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
                   <div className="flex items-center gap-2">
                     <Database className="h-4 w-4 text-[#002970]" />
@@ -836,7 +881,7 @@ export const App: React.FC = () => {
             )}
 
             {/* NPA Comparison Norms */}
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="rounded-xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 via-sky-50/20 to-white p-4 shadow-sm">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
                 <div className="flex items-center gap-2">
                   <Scale className="h-4 w-4 text-[#002970]" />

@@ -14,7 +14,7 @@ export const MacroRadarCard: React.FC<MacroRadarCardProps> = ({
 }) => {
   if (!radarData) {
     return (
-      <SpotlightCard className="p-4">
+      <SpotlightCard className="p-4 bg-gradient-to-br from-sky-50/70 via-slate-50 to-white border-2 border-slate-200 shadow-sm">
         <div className="flex items-center gap-2 text-slate-500">
           <Activity className="h-4 w-4 animate-spin text-[#002970]" />
           <span className="text-xs">Loading regional telemetry...</span>
@@ -28,7 +28,7 @@ export const MacroRadarCard: React.FC<MacroRadarCardProps> = ({
   const isFraudDivergence = peer_cluster_summary.affected_pct < 10 && macro.weather_severity_index < 0.2;
 
   return (
-    <SpotlightCard className="p-4">
+    <SpotlightCard className="p-4 bg-gradient-to-br from-sky-50/70 via-slate-50 to-white border-2 border-slate-200 shadow-sm">
       {/* Header with Pin Code and Macro Signal */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">

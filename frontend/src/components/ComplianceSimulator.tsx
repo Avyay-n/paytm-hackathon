@@ -13,7 +13,7 @@ export const ComplianceSimulator: React.FC<ComplianceSimulatorProps> = ({
   const isCompliant = currentHour >= 8 && currentHour < 19;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
+    <div className="rounded-xl border-2 border-blue-200/90 bg-gradient-to-r from-blue-50/80 via-slate-50 to-white p-3.5 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-[#00BAF2]" />

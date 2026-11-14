@@ -26,7 +26,7 @@ export const PipelineCascade: React.FC<PipelineCascadeProps> = ({ nodes }) => {
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 via-blue-50/20 to-white p-4 shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
         <h4 className="text-xs font-bold text-[#002970] uppercase tracking-tight flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5 text-[#00BAF2]" />

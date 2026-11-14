@@ -84,29 +84,29 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
   const isOnline = heartbeatPct > 50;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border-2 border-sky-200 bg-gradient-to-br from-sky-50/90 via-blue-50/40 to-white p-4 shadow-sm">
       {/* Top Header with Image 2 Logo */}
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="flex items-center justify-between border-b border-blue-100/80 pb-3">
         <div className="flex items-center gap-2">
           <img
             src="/paytm-lsp-badge.png"
             alt="Paytm Soundbox"
             className="h-6 w-auto object-contain rounded"
           />
-          <span className="font-mono text-xs text-slate-500 font-medium">Soundbox 4.0 • {deviceId}</span>
+          <span className="font-mono text-xs text-slate-600 font-bold">Soundbox 4.0 • {deviceId}</span>
         </div>
 
         {/* Heartbeat Status */}
         <div className="flex items-center gap-1.5">
-          <span className={`h-2 w-2 rounded-full ${isOnline ? 'bg-[#00BAF2] animate-pulse' : 'bg-slate-400'}`} />
-          <span className={`text-xs font-semibold ${isOnline ? 'text-[#002970]' : 'text-slate-500'}`}>
+          <span className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-[#00BAF2] animate-pulse' : 'bg-slate-400'}`} />
+          <span className={`text-xs font-bold ${isOnline ? 'text-[#002970]' : 'text-slate-500'}`}>
             {isOnline ? `${heartbeatPct}% Uptime` : 'Offline'}
           </span>
         </div>
       </div>
 
       {/* Center Soundbox Voice Bar */}
-      <div className="my-3 flex items-center gap-3 rounded-lg bg-blue-50/50 p-3 border border-blue-100">
+      <div className="my-3 flex items-center gap-3 rounded-lg bg-white/95 p-3 border border-blue-200 shadow-xs">
         <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-[#002970] text-white shadow-sm">
           <Radio className={`h-5 w-5 ${isPlayingAudio ? 'animate-bounce text-[#00BAF2]' : 'text-white'}`} />
         </div>
