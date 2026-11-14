@@ -547,6 +547,11 @@ export const App: React.FC = () => {
             clusterAffectedPct={macroSignal?.peer_cluster_affected_pct || 81.8}
             isNightBlock={simulatedHour < 8 || simulatedHour >= 19}
             isEscalated={hitlDossier !== null}
+            isProcessing={isProcessing}
+            currentScenario={currentScenario}
+            isCured={isCured}
+            merchantName={currentMerchant?.name}
+            dpdpConsentId={currentMerchant?.dpdp_consent_id}
           />
 
           {/* Section C: Live Visual Database Inspector & KPI Strip */}

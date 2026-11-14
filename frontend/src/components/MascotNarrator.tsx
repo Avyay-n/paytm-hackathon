@@ -205,13 +205,13 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
         </button>
       </div>
 
-      {/* Sarthi Explanation Console */}
+      {/* Sahayak Explanation Console */}
       <div className="rounded-xl bg-[#001433]/80 border border-white/10 p-4 space-y-3 shadow-inner">
         {/* Console Header */}
         <div className="flex items-center justify-between pb-2 border-b border-white/5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-300">
             <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-            <span>Sarthi Live Commentary</span>
+            <span>Sahayak Live Commentary</span>
           </div>
           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${narration.badgeColor}`}>
             {narration.badge}
