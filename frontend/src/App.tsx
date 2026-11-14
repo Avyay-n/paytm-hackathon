@@ -285,12 +285,22 @@ export const App: React.FC = () => {
 
   // Action chip handler from Phone
   const handleSelectActionChip = async (chipText: string) => {
-    if (chipText.includes('confirm')) {
+    if (
+      chipText.includes('confirm') ||
+      chipText.includes('कन्फर्म') ||
+      chipText.includes('स्वीकृत') ||
+      chipText.includes('ఖరారు')
+    ) {
       await handleRestructureConfirm();
       return;
     }
 
-    if (chipText.includes('closed') || chipText.includes('permanently')) {
+    if (
+      chipText.includes('closed') ||
+      chipText.includes('permanently') ||
+      chipText.includes('बंद') ||
+      chipText.includes('మూసివేయబడింది')
+    ) {
       // Trigger Node 5 HITL Escalation immediately
       await handleSelectScenario('APEX');
       return;
@@ -299,7 +309,7 @@ export const App: React.FC = () => {
     // Specific test for "Can you make it ₹50/day?": deterministic rejection to prove AI guardrails
     if (chipText.includes('50')) {
       const rejectTextHi =
-        'Priya ji, aapka daily QR volume ₹6,800 bilkul swasth aur normal hai. Concession policy ke tahat ₹50/day discount allow nahi kiya ja sakta (minimum permissible floor ₹150 hai aur keval genuine dip par lagu hota hai). Kripya regular ₹400 payment retry karein.';
+        'प्रिया जी, आपके व्यवसाय का दैनिक वॉल्यूम ₹6,800 बिल्कुल स्वस्थ है। जोखिम प्रबंधन नीति के तहत ₹50/दिन की छूट की अनुमति नहीं दी जा सकती (न्यूनतम स्वीकार्य सीमा ₹150 है और यह केवल प्रमाणित संकट में लागू होती है)। कृपया अपनी नियमित ₹400 की किस्त का पुनः प्रयास करें।';
       const rejectTextEn =
         'Priya, your daily QR volume is ₹6,800, which is healthy. Under statutory policy, a discount to ₹50/day cannot be granted (minimum permissible floor is ₹150, reserved for verified distress). Please retry your regular ₹400 daily sweep.';
       const rejectTextTe =
