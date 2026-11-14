@@ -97,11 +97,11 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         {/* Mascot Identity */}
         <div className="flex items-center gap-3.5">
-          {/* Animated Glowing Robot / Orb Mascot */}
+          {/* Animated Glowing Paytm Logo Badge */}
           <div className="relative flex items-center justify-center shrink-0">
             {/* Pulsing Outer Aura */}
             <div
-              className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#00BAF2] via-sky-400 to-amber-500 opacity-50 blur-sm transition-all duration-700 ${
+              className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#00BAF2] via-sky-400 to-[#002970] opacity-50 blur-sm transition-all duration-700 ${
                 isSpeaking ? 'animate-pulse scale-110 opacity-75' : ''
               }`}
             />
@@ -111,30 +111,22 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
               <div className="absolute -inset-2 rounded-2xl border-2 border-amber-400/80 animate-ping opacity-60 pointer-events-none" />
             )}
 
-            <div className="relative h-11 w-11 rounded-2xl bg-[#001433] border border-cyan-400/50 flex items-center justify-center shadow-lg overflow-hidden">
-              <div className="flex flex-col items-center justify-center space-y-1">
-                {/* Glowing Cyan Eyes */}
-                <div className="flex items-center space-x-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#00BAF2] shadow-[0_0_8px_#00BAF2] animate-bounce" style={{ animationDuration: '1.2s' }} />
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#00BAF2] shadow-[0_0_8px_#00BAF2] animate-bounce" style={{ animationDuration: '1.2s', animationDelay: '0.2s' }} />
-                </div>
-                {/* Waveform Mouth */}
-                <div className="flex items-center gap-0.5">
-                  <span className={`h-0.5 w-1 rounded-full ${isSpeaking ? 'bg-amber-400 animate-pulse' : 'bg-cyan-300'}`} />
-                  <span className={`h-1.5 w-1 rounded-full ${isSpeaking ? 'bg-amber-400 animate-pulse' : 'bg-cyan-300'}`} />
-                  <span className={`h-0.5 w-1 rounded-full ${isSpeaking ? 'bg-amber-400 animate-pulse' : 'bg-cyan-300'}`} />
-                </div>
-              </div>
+            <div className="relative h-11 w-11 rounded-2xl bg-white border border-cyan-400/40 p-1 flex items-center justify-center shadow-lg overflow-hidden">
+              <img
+                src="/paytm-circle-logo.png"
+                alt="Paytm"
+                className="h-full w-full object-contain"
+              />
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-black text-white tracking-tight">
-                Paytm Sarthi
+                Paytm Sahayak
               </h2>
               <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#00BAF2]/15 text-[#00BAF2] border border-[#00BAF2]/30">
-                AI Copilot Guide
+                Recovery Copilot AI
               </span>
             </div>
             <p className="text-xs text-slate-400 font-medium">Autonomous Narrative & Live Backend X-Ray</p>
