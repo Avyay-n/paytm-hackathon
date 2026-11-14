@@ -37,15 +37,15 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
         return {
           phoneState: 'Priya received a notification asking about her missed ₹400 daily EDI.',
           backendState: 'Node 1 verified ₹6,800/day healthy cash flow. Bank webhook flagged technical server timeout, not merchant distress.',
-          nextAction: 'Click "Can you make it ₹50/day?" on phone to test AI guardrails, or click Next Step.',
+          nextAction: 'Click "Can you make it ₹50/day?" on phone to verify that the AI rejects unjustified discounts and protects lender yield.',
           badge: 'SCENARIO 2: HEALTHY CASH FLOW',
           badgeColor: 'bg-teal-500/20 text-teal-300 border-teal-500/40',
         };
       }
       return {
-        phoneState: 'AI politely declined discount request to protect lender capital, offering 1-click ₹400 retry instead.',
+        phoneState: 'AI politely declined ₹50/day discount request, offering 1-click ₹400 retry to protect lender yield.',
         backendState: 'Node 3 strictly enforced deterministic policy: Healthy volume (>₹5k/day) cannot receive EDI haircut.',
-        nextAction: 'Click 1-Click Retry on phone, or switch to Scenario 3 to test chronic default.',
+        nextAction: 'Double-press the Soundbox button on the right to retry the missed ₹400 sweep, or switch to Scenario 3.',
         badge: 'POLICY ENFORCED (NO HAIRCUT)',
         badgeColor: 'bg-teal-500/20 text-teal-300 border-teal-500/40',
       };
@@ -66,7 +66,7 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
       return {
         phoneState: 'Ramesh receives an empathetic Hindi/Telugu WhatsApp message diagnosing his -45% monsoon sales dip.',
         backendState: 'Node 1 ingested 30d UPI data & correlated with Pin Code 500081 peer radar. Genuine localized shock confirmed.',
-        nextAction: 'Tap "Haan, ₹150/day confirm kar do ✅" on the phone OR double-press the physical Soundbox button.',
+        nextAction: 'Tap "Haan, ₹150/day confirm kar do ✅" on phone OR double-press the Soundbox button to accept ₹150/day.',
         badge: 'SCENARIO 1: RAMESH KIRANA (-45% DIP)',
         badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
       };

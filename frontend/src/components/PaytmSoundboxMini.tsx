@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Radio, Volume2, Sparkles, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Volume2, CheckCircle2, RotateCcw, AlertTriangle, Moon } from 'lucide-react';
 
 interface PaytmSoundboxMiniProps {
   deviceId?: string;
   heartbeatPct?: number;
+  scenario: 'RAMESH' | 'PRIYA' | 'APEX' | 'NIGHT_BLOCK';
   onDoublePressConfirm: () => void;
   isRestructured?: boolean;
   stepDownEdi?: number;
@@ -12,6 +13,7 @@ interface PaytmSoundboxMiniProps {
 export const PaytmSoundboxMini: React.FC<PaytmSoundboxMiniProps> = ({
   deviceId = 'PSB_HYD_9921',
   heartbeatPct = 99.4,
+  scenario = 'RAMESH',
   onDoublePressConfirm,
   isRestructured = false,
   stepDownEdi = 150,
@@ -51,42 +53,64 @@ export const PaytmSoundboxMini: React.FC<PaytmSoundboxMiniProps> = ({
       osc2.start(now + 0.12);
       osc2.stop(now + 0.55);
     } catch {
-      // AudioContext unavailable fallback
+      // AudioContext fallback
     }
   };
 
-  // Indian accented Voice confirmation
-  const speakConfirmation = () => {
+  // Indian accented Voice confirmation via Sarvam AI or browser fallback
+  const speakConfirmation = async () => {
+    const textToAnnounce =
+      scenario === 'PRIYA'
+        ? 'Paytm par 400 rupaye ka daily settlement safaltapoorvak process ho gaya hai'
+        : `Paytm par ${stepDownEdi} rupaye pratidin Elastic EDI plan safaltapoorvak chalu ho gaya hai`;
+
     try {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const text = `Paytm par ₹${stepDownEdi} pratidin Elastic EDI plan safaltapoorvak chalu ho gaya hai!`;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.95;
-        utterance.pitch = 1.05;
-        const voices = window.speechSynthesis.getVoices();
-        const hindiVoice = voices.find(
-          (v) => v.lang.includes('hi') || v.lang.includes('IN') || v.name.includes('India')
-        );
-        if (hindiVoice) utterance.voice = hindiVoice;
-        utterance.onstart = () => setIsPlayingAudio(true);
-        utterance.onend = () => setIsPlayingAudio(false);
-        utterance.onerror = () => setIsPlayingAudio(false);
-        window.speechSynthesis.speak(utterance);
+      setIsPlayingAudio(true);
+      const res = await fetch('http://localhost:8000/api/sarvam/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: textToAnnounce, language_code: 'hi-IN' })
+      });
+      const data = await res.json();
+      if (data.success && data.audio_base64) {
+        const audio = new Audio('data:audio/wav;base64,' + data.audio_base64);
+        audio.onended = () => setIsPlayingAudio(false);
+        audio.onerror = () => setIsPlayingAudio(false);
+        await audio.play();
+        return;
       }
     } catch {
+      // Browser fallback
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(textToAnnounce);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
+      utterance.lang = 'hi-IN';
+      utterance.onstart = () => setIsPlayingAudio(true);
+      utterance.onend = () => setIsPlayingAudio(false);
+      utterance.onerror = () => setIsPlayingAudio(false);
+      window.speechSynthesis.speak(utterance);
+    } else {
       setIsPlayingAudio(false);
     }
   };
 
   const handleButtonPress = () => {
+    if (scenario === 'APEX' || scenario === 'NIGHT_BLOCK') return;
+
     const now = Date.now();
     playPaytmChime();
 
     if (now - lastTapTime < 800) {
-      // Double tap confirmed!
       setTapCount(0);
-      setFeedback(`✓ Double-Press Confirmed: ₹${stepDownEdi}/day committed!`);
+      const msg =
+        scenario === 'PRIYA'
+          ? '✓ Double-Press Confirmed: ₹400 retry cleared!'
+          : `✓ Double-Press Confirmed: ₹${stepDownEdi}/day committed!`;
+      setFeedback(msg);
       speakConfirmation();
       onDoublePressConfirm();
       setTimeout(() => setFeedback(null), 4000);
@@ -100,6 +124,75 @@ export const PaytmSoundboxMini: React.FC<PaytmSoundboxMiniProps> = ({
       }, 1200);
     }
   };
+
+  // Dynamic button labels based on scenario
+  const getButtonContent = () => {
+    if (scenario === 'NIGHT_BLOCK') {
+      return (
+        <div className="flex items-center justify-center gap-2 text-rose-300 font-bold">
+          <Moon className="h-4 w-4" />
+          <span>Outreach Blocked (21:30 IST) • Queued for 08:05 AM</span>
+        </div>
+      );
+    }
+
+    if (scenario === 'APEX') {
+      return (
+        <div className="flex items-center justify-center gap-2 text-amber-300 font-bold">
+          <AlertTriangle className="h-4 w-4" />
+          <span>Soundbox Offline • Locked for DRA Field Agent</span>
+        </div>
+      );
+    }
+
+    if (scenario === 'PRIYA') {
+      if (isRestructured) {
+        return (
+          <div className="flex items-center justify-center gap-2 text-emerald-300 font-bold">
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+            <span>✓ Missed Sweep Cleared (₹400 Paid via 1-Click Retry)</span>
+          </div>
+        );
+      }
+      return (
+        <div className="flex items-center justify-center gap-2">
+          <span className="h-3.5 w-3.5 rounded-full bg-[#002970] text-[#00BAF2] text-[10px] flex items-center justify-center font-black">
+            {tapCount > 0 ? '2' : '🔄'}
+          </span>
+          <span>
+            {tapCount > 0
+              ? 'Click Once More to Clear ₹400 Sweep!'
+              : 'Double-Press: Retry Missed ₹400 Daily Sweep'}
+          </span>
+        </div>
+      );
+    }
+
+    // Default: RAMESH
+    if (isRestructured) {
+      return (
+        <div className="flex items-center justify-center gap-2 text-emerald-300 font-bold">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+          <span>✓ Restructuring Active (₹150/day Committed)</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <span className="h-3.5 w-3.5 rounded-full bg-[#002970] text-[#00BAF2] text-[10px] flex items-center justify-center font-black">
+          {tapCount > 0 ? '2' : '🔘'}
+        </span>
+        <span>
+          {tapCount > 0
+            ? 'Click Once More to Accept ₹150/day Plan!'
+            : 'Double-Press: Confirm ₹150/day EDI Plan'}
+        </span>
+      </div>
+    );
+  };
+
+  const isButtonDisabled = scenario === 'APEX' || scenario === 'NIGHT_BLOCK' || isRestructured;
 
   return (
     <div className="rounded-2xl bg-gradient-to-br from-[#002970] via-[#001D4D] to-[#001433] p-4 text-white shadow-xl border-2 border-cyan-400/40 relative overflow-hidden transition-all duration-300 hover:shadow-cyan-500/10">
@@ -124,14 +217,26 @@ export const PaytmSoundboxMini: React.FC<PaytmSoundboxMiniProps> = ({
             <span className="font-mono text-xs font-bold text-white block">
               Paytm Soundbox 4.0
             </span>
-            <span className="text-[10px] text-cyan-300 font-mono">{deviceId}</span>
+            <span className="text-[10px] text-cyan-300 font-mono">
+              {scenario === 'APEX' ? 'OFFLINE_14D' : deviceId}
+            </span>
           </div>
         </div>
 
         {/* LED Light & Uptime */}
         <div className="flex items-center gap-1.5 bg-black/40 px-2 py-0.5 rounded-full border border-white/10">
-          <span className={`h-2 w-2 rounded-full ${isRestructured ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400 animate-pulse'}`} />
-          <span className="text-[10px] font-bold text-slate-300">{heartbeatPct}% Live</span>
+          <span
+            className={`h-2 w-2 rounded-full ${
+              scenario === 'APEX' || scenario === 'NIGHT_BLOCK'
+                ? 'bg-rose-500'
+                : isRestructured
+                ? 'bg-emerald-400 animate-pulse'
+                : 'bg-cyan-400 animate-pulse'
+            }`}
+          />
+          <span className="text-[10px] font-bold text-slate-300">
+            {scenario === 'APEX' ? 'Offline' : `${heartbeatPct}% Live`}
+          </span>
         </div>
       </div>
 
@@ -141,7 +246,11 @@ export const PaytmSoundboxMini: React.FC<PaytmSoundboxMiniProps> = ({
           <div className="flex items-center gap-2">
             <Volume2 className={`h-4 w-4 ${isPlayingAudio ? 'text-amber-400 animate-bounce' : 'text-cyan-400'}`} />
             <span className="text-[11px] text-slate-200">
-              {isPlayingAudio ? 'Playing Chime Announcement...' : '2-Way Hardware Acceptance Rail'}
+              {isPlayingAudio
+                ? 'Playing Chime Announcement...'
+                : scenario === 'PRIYA'
+                ? '1-Click Settlement Retry Rail'
+                : '2-Way Hardware Acceptance Rail'}
             </span>
           </div>
           <span className="text-[10px] font-mono text-cyan-300 uppercase font-bold">IoT Event</span>
@@ -150,30 +259,14 @@ export const PaytmSoundboxMini: React.FC<PaytmSoundboxMiniProps> = ({
         {/* Tactile Hardware Double-Press Button */}
         <button
           onClick={handleButtonPress}
-          disabled={isRestructured}
-          className={`w-full py-2.5 px-4 rounded-xl font-black text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 ${
-            isRestructured
-              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 cursor-default'
+          disabled={isButtonDisabled}
+          className={`w-full py-2.5 px-4 rounded-xl font-black text-xs transition-all shadow-md active:scale-95 ${
+            isButtonDisabled
+              ? 'bg-white/10 text-slate-400 border border-white/10 cursor-not-allowed opacity-80'
               : 'bg-gradient-to-r from-[#00BAF2] to-sky-400 hover:from-sky-400 hover:to-cyan-300 text-[#002970] shadow-cyan-400/30'
           }`}
         >
-          {isRestructured ? (
-            <>
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>✓ Plan Active (₹{stepDownEdi}/day Committed)</span>
-            </>
-          ) : (
-            <>
-              <span className="h-3.5 w-3.5 rounded-full bg-[#002970] text-[#00BAF2] text-[10px] flex items-center justify-center font-bold">
-                {tapCount > 0 ? '2' : '🔘'}
-              </span>
-              <span>
-                {tapCount > 0
-                  ? 'Click Once More to Accept!'
-                  : `Double-Press: Confirm ₹${stepDownEdi} EDI`}
-              </span>
-            </>
-          )}
+          {getButtonContent()}
         </button>
 
         {feedback && (

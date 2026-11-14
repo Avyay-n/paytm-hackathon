@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldCheck,
   Zap,
@@ -62,6 +62,34 @@ export const App: React.FC = () => {
   const [kfsDocument, setKfsDocument] = useState<KFSDocument | null>(null);
   const [hitlDossier, setHitlDossier] = useState<HITLDossier | null>(null);
   const [isCured, setIsCured] = useState(false);
+
+  // Audio Player Reference
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Strips emojis and formatting symbols before feeding to Speech Synthesis / Sarvam
+  const cleanTextForSpeech = (text: string): string => {
+    return text
+      // Remove all unicode emojis
+      .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{1F000}-\u{1F02F}\u{1F0A0}-\u{1F0FF}]/gu, '')
+      // Remove formatting punctuation that could be vocalized awkwardly
+      .replace(/[•*#_~`[\]()\-]/g, ' ')
+      // Normalize whitespace
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  // Stops any playing audio immediately (Pause button functionality)
+  const handleStopVoice = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+  };
 
   // Initial Data Load
   const loadInitialData = async () => {
@@ -268,6 +296,27 @@ export const App: React.FC = () => {
       return;
     }
 
+    // Specific test for "Can you make it ₹50/day?": deterministic rejection to prove AI guardrails
+    if (chipText.includes('50')) {
+      const rejectTextHi =
+        'Priya ji, aapka daily QR volume ₹6,800 bilkul swasth aur normal hai. Concession policy ke tahat ₹50/day discount allow nahi kiya ja sakta (minimum permissible floor ₹150 hai aur keval genuine dip par lagu hota hai). Kripya regular ₹400 payment retry karein.';
+      const rejectTextEn =
+        'Priya, your daily QR volume is ₹6,800, which is healthy. Under statutory policy, a discount to ₹50/day cannot be granted (minimum permissible floor is ₹150, reserved for verified distress). Please retry your regular ₹400 daily sweep.';
+      const rejectTextTe =
+        'ప్రియా గారు, మీ రోజువారీ ఆదాయం ₹6,800 తో ఆరోగ్యంగా ఉంది. నిబంధనల ప్రకారం ₹50/రోజు రాయితీ ఇవ్వలేము (కనీస పరిమితి ₹150). దయచేసి మీ సాధారణ ₹400 ఈఎంఐ చెల్లించండి.';
+
+      setChatMessage({
+        display_text: rejectTextHi,
+        hindi_text: rejectTextHi,
+        english_text: rejectTextEn,
+        telugu_text: rejectTextTe,
+        tts_native_text: rejectTextHi,
+        recommended_option: 'RETRY_SWEEP',
+        options: [{ id: 'RETRY', label: 'Retry ₹400 Sweep', variant: 'cyan' }]
+      });
+      return;
+    }
+
     try {
       setIsProcessing(true);
       const res = await runPipeline({
@@ -306,42 +355,77 @@ export const App: React.FC = () => {
     }
   };
 
-  // Voice playback with Sarthi mascot speaking sync
-  const handlePlayVoice = (text?: string, langCode: string = 'hi-IN') => {
+  // Voice playback with Sarvam AI Bulbul v4 and Pause/Stop support
+  const handlePlayVoice = async (rawText?: string, langCode: string = 'te-IN') => {
+    // If currently playing, clicking pause stops speech immediately
+    if (isSpeaking) {
+      handleStopVoice();
+      return;
+    }
+
+    handleStopVoice();
+    const cleanText = cleanTextForSpeech(
+      rawText ||
+      chatMessage?.display_text ||
+      'Namaste. Paytm Recovery Copilot ki taraf se.'
+    );
+
+    setIsSpeaking(true);
+
+    // 1. Synthesize audio via Sarvam AI Bulbul v4 on backend
     try {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const speechText =
-          text ||
-          chatMessage?.display_text ||
-          'Namaste Ramesh ji. Paytm Recovery Copilot ki taraf se. Hum aapka daily EMI ghatakar ₹150 kar sakte hain.';
-
-        const utterance = new SpeechSynthesisUtterance(speechText);
-        utterance.rate = 0.95;
-        utterance.pitch = 1.05;
-
-        const voices = window.speechSynthesis.getVoices();
-        const matchedVoice = voices.find(
-          (v) =>
-            v.lang.toLowerCase().includes(langCode.slice(0, 2)) ||
-            v.lang.includes('IN') ||
-            v.name.includes('India')
-        );
-        if (matchedVoice) utterance.voice = matchedVoice;
-
-        utterance.onstart = () => {
-          setIsSpeaking(true);
-        };
-        utterance.onend = () => {
+      const res = await fetch('http://localhost:8000/api/sarvam/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: cleanText, language_code: langCode })
+      });
+      const data = await res.json();
+      if (data.success && data.audio_base64) {
+        const audio = new Audio('data:audio/wav;base64,' + data.audio_base64);
+        currentAudioRef.current = audio;
+        audio.onended = () => {
           setIsSpeaking(false);
+          currentAudioRef.current = null;
         };
-        utterance.onerror = () => {
+        audio.onerror = () => {
           setIsSpeaking(false);
+          currentAudioRef.current = null;
         };
-
-        window.speechSynthesis.speak(utterance);
+        await audio.play();
+        return;
       }
-    } catch {
+    } catch (err) {
+      console.warn('Sarvam AI backend call failed, falling back to speech synthesis:', err);
+    }
+
+    // 2. Fallback to window.speechSynthesis
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = langCode;
+      utterance.rate = 0.95;
+
+      const voices = window.speechSynthesis.getVoices();
+      let chosenVoice: SpeechSynthesisVoice | undefined;
+
+      if (langCode.startsWith('te')) {
+        chosenVoice = voices.find((v) => v.lang.toLowerCase().includes('te'));
+      } else if (langCode.startsWith('hi')) {
+        chosenVoice = voices.find((v) => v.lang.toLowerCase().includes('hi'));
+      } else {
+        chosenVoice = voices.find(
+          (v) => v.lang.toLowerCase().includes('en-in') || v.lang.toLowerCase().includes('en')
+        );
+      }
+
+      if (chosenVoice) utterance.voice = chosenVoice;
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      window.speechSynthesis.speak(utterance);
+    } else {
       setIsSpeaking(false);
     }
   };
@@ -486,9 +570,10 @@ export const App: React.FC = () => {
             <PaytmSoundboxMini
               deviceId={currentMerchant?.soundbox_device_id || 'PSB_HYD_9921'}
               heartbeatPct={currentMerchant?.soundbox_heartbeat_pct || 99.4}
+              scenario={currentScenario}
               onDoublePressConfirm={handleRestructureConfirm}
               isRestructured={isCured}
-              stepDownEdi={currentLoan?.min_allowed_edi || 150}
+              stepDownEdi={currentScenario === 'PRIYA' ? 400 : 150}
             />
           </div>
 
@@ -498,6 +583,7 @@ export const App: React.FC = () => {
               <PhoneSimulator
                 merchant={currentMerchant}
                 loan={currentLoan}
+                currentScenario={currentScenario}
                 chatMessage={chatMessage}
                 kfsDocument={kfsDocument}
                 hitlDossier={hitlDossier}
@@ -505,6 +591,7 @@ export const App: React.FC = () => {
                 onSendCustomMessage={handleSendCustomMessage}
                 onSelectActionChip={handleSelectActionChip}
                 onPlayVoice={handlePlayVoice}
+                onStopVoice={handleStopVoice}
                 isPlayingVoice={isSpeaking}
               />
             </div>

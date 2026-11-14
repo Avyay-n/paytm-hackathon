@@ -11,7 +11,6 @@ import {
   Pause,
   AlertTriangle,
   ArrowRight,
-  ExternalLink,
   Wifi,
   Battery,
   Signal
@@ -21,19 +20,22 @@ import { Merchant, Loan, ChatMessage, KFSDocument, HITLDossier } from '../types'
 interface PhoneSimulatorProps {
   merchant: Merchant;
   loan: Loan;
+  currentScenario: 'RAMESH' | 'PRIYA' | 'APEX' | 'NIGHT_BLOCK';
   chatMessage: ChatMessage | null;
   kfsDocument: KFSDocument | null;
   hitlDossier?: HITLDossier | null;
   isCured: boolean;
   onSendCustomMessage: (msg: string) => void;
   onSelectActionChip: (chipText: string) => void;
-  onPlayVoice: (text?: string, lang?: string) => void;
+  onPlayVoice: (text: string, langCode: string) => void;
+  onStopVoice: () => void;
   isPlayingVoice: boolean;
 }
 
 export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
   merchant,
   loan,
+  currentScenario,
   chatMessage,
   kfsDocument,
   hitlDossier,
@@ -41,6 +43,7 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
   onSendCustomMessage,
   onSelectActionChip,
   onPlayVoice,
+  onStopVoice,
   isPlayingVoice,
 }) => {
   const [selectedLang, setSelectedLang] = useState<'EN' | 'HINGLISH' | 'TELUGU'>('HINGLISH');
@@ -58,25 +61,48 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
     } else {
       setSelectedLang('HINGLISH');
     }
-  }, [merchant.id]);
+    // Clear conversation messages on merchant switch
+    setLocalMessages([]);
+  }, [merchant.id, currentScenario]);
 
-  // Compute localized agent message
+  // Compute localized agent message based on scenario and selected language
   const getAgentSpeechText = (): string => {
+    if (currentScenario === 'PRIYA') {
+      if (selectedLang === 'TELUGU') {
+        return `నమస్కారం ప్రియా శర్మ గారు 🙏 పేటీఎం రికవరీ కోపైలట్ (Aditya Birla Finance) నుండి. మీ ₹400 రోజువారీ ఈఎంఐ బ్యాంక్ సర్వర్ గ్లిచ్ వల్ల నిలిచిపోయింది. మీ రోజువారీ అమ్మకాలు ₹6,800 తో ఆరోగ్యంగా ఉన్నాయి. ఎలాంటి పెనాల్టీ లేకుండా ఈ రోజే ₹400 క్లియర్ చేయడానికి రీట్రై చేయండి.`;
+      }
+      if (selectedLang === 'EN') {
+        return `Hello Priya Sharma, this is Paytm Recovery Copilot on behalf of Aditya Birla Finance. Your ₹400 daily EDI missed due to an NPCI bank switch timeout. Your sales remain healthy at ₹6,800/day. Please 1-click retry to clear the ₹400 payment with zero penal fees.`;
+      }
+      return `Namaste Priya ji 🙏 Humne dekha ki bank server timeout ki wajah se aapka ₹400 daily EDI miss hua hai. Aapka daily volume ₹6,800 bilkul swasth hai. Zero penal charges ke saath ₹400 clear karne ke liye 1-click retry karein.`;
+    }
+
+    if (currentScenario === 'APEX') {
+      if (selectedLang === 'TELUGU') {
+        return `గమనిక: అపెక్స్ ఎలక్ట్రానిక్స్ ఖాతాలో గత 25 రోజులుగా సున్నా వ్యాపారం నమోదైంది. ఆర్బీఐ నిబంధనల ప్రకారం ఈ ఖాతా డిఆర్ఎ ఫీల్డ్ రికవరీ విభాగానికి బదిలీ చేయబడింది.`;
+      }
+      if (selectedLang === 'EN') {
+        return `Formal Notice: Apex Electronics has recorded 0 transactions for 25 consecutive days. Per RBI regulations, this loan has been escalated to DRA Field Recovery Officer Suresh Varma.`;
+      }
+      return `Formal Notice: Apex Electronics par pichle 25 dino se zero transactions record hue hain. RBI niyamon ke anusar is account ko DRA Field Recovery Officer Suresh Varma ko assign kiya gaya hai.`;
+    }
+
+    // Default: RAMESH KIRANA
     if (selectedLang === 'TELUGU') {
       return (
         chatMessage?.telugu_text ||
-        `నమస్కారం ${merchant.name} గారు 🙏 పేటీఎం రికవరీ కోపైలట్ (SMFG India Credit) నుండి. పిన్ కోడ్ ${merchant.pin_code} లో భారీ వర్షాలు మరియు రోడ్డు పనుల వల్ల మీ వ్యాపారంలో 45% అమ్మకాలు తగ్గినట్లు మా సిస్టమ్ గుర్తించింది. మీకు ఎలాంటి పెనాల్టీ పడకుండా ఉండేందుకు, మీ రోజువారీ EMI ని ₹${loan.original_daily_edi} నుండి ₹${loan.min_allowed_edi} కి 14 రోజుల పాటు తగ్గిస్తున్నాము. దీన్ని ఆమోదించమంటారా?`
+        `నమస్కారం ${merchant.name} గారు 🙏 పేటీఎం రికవరీ కోపైలట్ (SMFG India Credit) నుండి. పిన్ కోడ్ ${merchant.pin_code} లో భారీ వర్షాలు మరియు రోడ్డు పనుల వల్ల మీ వ్యాపారంలో 45% అమ్మకాలు తగ్గినట్లు మా సిస్టమ్ గుర్తించింది. మీకు ఎలాంటి పెనాల్టీ పడకుండా ఉండేందుకు, మీ రోజువారీ EMI ని ₹${loan.original_daily_edi} నుండి ₹150 కి 14 రోజుల పాటు తగ్గిస్తున్నాము. దీన్ని ఆమోదించమంటారా?`
       );
     }
     if (selectedLang === 'HINGLISH') {
       return (
         chatMessage?.hindi_text ||
-        `Namaste ${merchant.name} ji 🙏 Humne dekha ki pichle 7 dino mein road construction ki wajah se aapke Paytm QR collections 45% kam hue hain (₹4,200 se ₹2,310/day). Aap par koi penalty na lage, isliye hum aapka ₹${loan.original_daily_edi}/day EDI agle 14 dino ke liye ₹${loan.min_allowed_edi}/day (Elastic 10% QR sweep) kar sakte hain. Kya main ise लागू (apply) kar doon?`
+        `Namaste ${merchant.name} ji 🙏 Humne dekha ki pichle 7 dino mein road construction ki wajah se aapke Paytm QR collections 45% kam hue hain (₹4,200 se ₹2,310/day). Aap par koi penalty na lage, isliye hum aapka ₹${loan.original_daily_edi}/day EDI agle 14 dino ke liye ₹150/day (Elastic 10% QR sweep) kar sakte hain. Kya main ise लागू (apply) kar doon?`
       );
     }
     return (
       chatMessage?.english_text ||
-      `Hello ${merchant.name}, this is Paytm Recovery Copilot on behalf of ${loan.lender_nbfc_partner}. Our telemetry identified a 45% settlement dip in your area. To protect your credit score with zero penalties, we can lower your daily EDI from ₹${loan.original_daily_edi} to ₹${loan.min_allowed_edi}/day for 14 days. Shall I apply this?`
+      `Hello ${merchant.name}, this is Paytm Recovery Copilot on behalf of ${loan.lender_nbfc_partner}. Our telemetry identified a 45% settlement dip in your area. To protect your credit score with zero penalties, we can lower your daily EDI from ₹${loan.original_daily_edi} to ₹150/day for 14 days. Shall I apply this?`
     );
   };
 
@@ -99,10 +125,23 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
     onSelectActionChip(text);
   };
 
+  // Toggle Voice Note: if playing, stop/pause; if not playing, start with exact language
   const handleVoiceToggle = () => {
-    const text = getAgentSpeechText();
-    const langCode = selectedLang === 'TELUGU' ? 'te-IN' : selectedLang === 'HINGLISH' ? 'hi-IN' : 'en-IN';
-    onPlayVoice(text, langCode);
+    if (isPlayingVoice) {
+      onStopVoice();
+    } else {
+      const text = getAgentSpeechText();
+      const langCode = selectedLang === 'TELUGU' ? 'te-IN' : selectedLang === 'HINGLISH' ? 'hi-IN' : 'en-IN';
+      onPlayVoice(text, langCode);
+    }
+  };
+
+  // Switch language and stop current speech if active
+  const handleLanguageChange = (lang: 'EN' | 'HINGLISH' | 'TELUGU') => {
+    if (isPlayingVoice) {
+      onStopVoice();
+    }
+    setSelectedLang(lang);
   };
 
   // Scroll chat within container
@@ -110,7 +149,7 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
     if (chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
-  }, [localMessages, isCured, hitlDossier]);
+  }, [localMessages, isCured, hitlDossier, chatMessage]);
 
   return (
     <div className="relative mx-auto w-full max-w-[390px] h-[780px] rounded-[48px] bg-slate-900 p-3.5 shadow-2xl border-[6px] border-slate-800 shadow-slate-900/40 select-none overflow-hidden flex flex-col justify-between">
@@ -144,7 +183,7 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
 
             <div>
               <div className="flex items-center gap-1">
-                <h3 className="text-xs font-bold leading-tight truncate max-w-[150px]">
+                <h3 className="text-xs font-bold leading-tight truncate max-w-[140px]">
                   {merchant.business_name}
                 </h3>
                 <Check className="h-3 w-3 text-[#00BAF2]" />
@@ -156,27 +195,27 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
           </div>
 
           {/* Quick Language Pill Switcher */}
-          <div className="flex items-center rounded-lg bg-black/30 p-0.5 border border-white/20 text-[10px] font-bold">
+          <div className="flex items-center rounded-lg bg-black/40 p-0.5 border border-white/20 text-[10px] font-bold">
             <button
-              onClick={() => setSelectedLang('EN')}
+              onClick={() => handleLanguageChange('EN')}
               className={`px-1.5 py-0.5 rounded transition-all ${
-                selectedLang === 'EN' ? 'bg-[#00BAF2] text-[#002970] font-black' : 'text-slate-300'
+                selectedLang === 'EN' ? 'bg-[#00BAF2] text-[#002970] font-black shadow-xs' : 'text-slate-300 hover:text-white'
               }`}
             >
               EN
             </button>
             <button
-              onClick={() => setSelectedLang('HINGLISH')}
+              onClick={() => handleLanguageChange('HINGLISH')}
               className={`px-1.5 py-0.5 rounded transition-all ${
-                selectedLang === 'HINGLISH' ? 'bg-[#00BAF2] text-[#002970] font-black' : 'text-slate-300'
+                selectedLang === 'HINGLISH' ? 'bg-[#00BAF2] text-[#002970] font-black shadow-xs' : 'text-slate-300 hover:text-white'
               }`}
             >
               Hinglish
             </button>
             <button
-              onClick={() => setSelectedLang('TELUGU')}
+              onClick={() => handleLanguageChange('TELUGU')}
               className={`px-1.5 py-0.5 rounded transition-all ${
-                selectedLang === 'TELUGU' ? 'bg-[#00BAF2] text-[#002970] font-black' : 'text-slate-300'
+                selectedLang === 'TELUGU' ? 'bg-[#00BAF2] text-[#002970] font-black shadow-xs' : 'text-slate-300 hover:text-white'
               }`}
             >
               తెలుగు
@@ -201,7 +240,7 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
           </div>
 
           {/* Proactive Agent Message Bubble */}
-          <div className="flex flex-col items-start max-w-[90%]">
+          <div className="flex flex-col items-start max-w-[92%]">
             <div className="rounded-2xl rounded-tl-none bg-white p-3 text-slate-800 shadow-sm border border-slate-200 space-y-2">
               {/* Agent Badge */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
@@ -221,7 +260,11 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
               <div className="mt-2 pt-2 border-t border-slate-100 bg-slate-50/80 rounded-xl p-2 flex items-center justify-between">
                 <button
                   onClick={handleVoiceToggle}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#002970] text-white text-[11px] font-bold hover:bg-[#003B95] active:scale-95 transition-all shadow-xs"
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold active:scale-95 transition-all shadow-xs ${
+                    isPlayingVoice
+                      ? 'bg-rose-600 text-white hover:bg-rose-700 animate-pulse'
+                      : 'bg-[#002970] text-white hover:bg-[#003B95]'
+                  }`}
                 >
                   {isPlayingVoice ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
                   <span>{isPlayingVoice ? 'Pause' : 'Voice Note'}</span>
@@ -244,7 +287,9 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
                   })}
                 </div>
 
-                <span className="text-[9px] font-mono text-slate-400">0:18</span>
+                <span className="text-[9px] font-mono text-slate-500 font-bold">
+                  {selectedLang === 'TELUGU' ? 'తెలుగు' : selectedLang === 'HINGLISH' ? 'Hindi' : 'English'}
+                </span>
               </div>
             </div>
           </div>
@@ -263,7 +308,7 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
           ))}
 
           {/* Digital Key Fact Statement (KFS) Card upon Restructure */}
-          {isCured && (
+          {isCured && currentScenario === 'RAMESH' && (
             <div className="rounded-2xl bg-white p-3 border-2 border-emerald-400 shadow-md space-y-2">
               <div className="flex items-center justify-between border-b border-emerald-100 pb-1.5">
                 <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-[11px]">
@@ -279,8 +324,8 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
                 <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
                   <span className="text-slate-400 block">Daily Settlement Sweep</span>
                   <div className="flex items-center gap-1 font-bold text-slate-900">
-                    <span className="text-emerald-700 font-black">₹{loan.min_allowed_edi}/day</span>
-                    <span className="line-through text-slate-400 text-[9px]">₹{loan.original_daily_edi}</span>
+                    <span className="text-emerald-700 font-black">₹150/day</span>
+                    <span className="line-through text-slate-400 text-[9px]">₹500</span>
                   </div>
                 </div>
 
@@ -308,17 +353,17 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
           )}
 
           {/* HITL Escalation Notice Card for Scenario 3 */}
-          {hitlDossier && (
+          {(hitlDossier || currentScenario === 'APEX') && (
             <div className="rounded-2xl bg-amber-50 p-3 border-2 border-amber-400 shadow-md space-y-1.5">
               <div className="flex items-center gap-1.5 text-amber-900 font-bold text-[11px]">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
                 <span>Account Assigned to Field Agent</span>
               </div>
               <p className="text-[11px] text-amber-800 leading-snug">
-                Due to 25 consecutive days of zero QR settlements, your case has been transferred to authorized DRA Recovery Officer <strong>{hitlDossier.rbi_dra_assignment.allocated_officer}</strong>.
+                Due to 25 consecutive days of zero QR settlements, your case has been transferred to authorized DRA Recovery Officer <strong>Suresh Varma (Badge #DRA_774)</strong>.
               </p>
               <div className="text-[9px] text-amber-700 border-t border-amber-200/80 pt-1 flex items-center justify-between">
-                <span>Permitted Window: {hitlDossier.rbi_dra_assignment.visit_window_permitted}</span>
+                <span>Permitted Window: 09:00 - 18:00 IST</span>
                 <span className="font-bold text-amber-900">Body-Cam Mandatory</span>
               </div>
             </div>
@@ -327,20 +372,42 @@ export const PhoneSimulator: React.FC<PhoneSimulatorProps> = ({
 
         {/* 4. Action Chips & Free-Play Input Bar */}
         <div className="bg-white p-2.5 border-t border-slate-200 z-20 space-y-2">
-          {/* Quick-Tap Action Chips */}
+          {/* Quick-Tap Action Chips tailored to current scenario */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[10px] font-bold">
-            <button
-              onClick={() => handleChipClick('Haan, ₹150/day confirm kar do ✅')}
-              className="px-2.5 py-1 rounded-full bg-blue-50 text-[#002970] border border-blue-200 hover:bg-blue-100 shrink-0 whitespace-nowrap active:scale-95 transition-all"
-            >
-              Haan, ₹150/day confirm kar do ✅
-            </button>
-            <button
-              onClick={() => handleChipClick('Can you make it ₹50/day?')}
-              className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 shrink-0 whitespace-nowrap active:scale-95 transition-all"
-            >
-              Can you make it ₹50/day?
-            </button>
+            {currentScenario === 'RAMESH' && (
+              <>
+                <button
+                  onClick={() => handleChipClick('Haan, ₹150/day confirm kar do ✅')}
+                  className="px-2.5 py-1 rounded-full bg-blue-50 text-[#002970] border border-blue-200 hover:bg-blue-100 shrink-0 whitespace-nowrap active:scale-95 transition-all"
+                >
+                  Haan, ₹150/day confirm kar do ✅
+                </button>
+                <button
+                  onClick={() => handleChipClick('Can you make it ₹50/day?')}
+                  className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 shrink-0 whitespace-nowrap active:scale-95 transition-all"
+                >
+                  Can you make it ₹50/day?
+                </button>
+              </>
+            )}
+
+            {currentScenario === 'PRIYA' && (
+              <>
+                <button
+                  onClick={() => handleChipClick('Can you make it ₹50/day?')}
+                  className="px-2.5 py-1 rounded-full bg-blue-50 text-[#002970] border border-blue-200 hover:bg-blue-100 shrink-0 whitespace-nowrap active:scale-95 transition-all"
+                >
+                  Can you make it ₹50/day?
+                </button>
+                <button
+                  onClick={() => handleChipClick('Retry ₹400 daily sweep now ✅')}
+                  className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 shrink-0 whitespace-nowrap active:scale-95 transition-all"
+                >
+                  Retry ₹400 daily sweep now ✅
+                </button>
+              </>
+            )}
+
             <button
               onClick={() => handleChipClick('Why did my EDI fail?')}
               className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 shrink-0 whitespace-nowrap active:scale-95 transition-all"

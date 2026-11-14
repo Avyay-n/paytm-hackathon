@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Query, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -171,6 +172,21 @@ async def speech_to_text(
             "transcript": "Haan, Option A confirm karo",
             "model": "FALLBACK"
         }
+
+class TTSRequest(BaseModel):
+    text: str
+    language_code: Optional[str] = "te-IN"
+
+@app.post("/api/sarvam/tts")
+async def text_to_speech(req: TTSRequest):
+    """
+    Synthesizes speech using Sarvam AI Bulbul v4 in Telugu, Hindi, or English.
+    """
+    res = await synthesize_speech(
+        text=req.text,
+        language_code=req.language_code or "te-IN"
+    )
+    return res
 
 @app.get("/api/audit-logs/{merchant_id}", response_model=List[AgentAuditLogSchema])
 def get_audit_logs(merchant_id: str, db: Session = Depends(get_db)):
