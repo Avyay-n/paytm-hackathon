@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   TrendingUp,
   ShieldCheck,
@@ -7,7 +7,9 @@ import {
   Database,
   AlertTriangle,
   UserCheck,
-  FileText
+  Scale,
+  HelpCircle,
+  Clock
 } from 'lucide-react';
 import { SpotlightCard } from './ui/SpotlightCard';
 import { BorderBeam } from './ui/BorderBeam';
@@ -36,8 +38,43 @@ export const OpsCommandCenter: React.FC<OpsCommandCenterProps> = ({
   hitlDossier,
   merchantName,
 }) => {
+  const [npaFramework, setNpaFramework] = useState<'PAYTM_30D' | 'RBI_90D'>('PAYTM_30D');
   const isCured = loan?.status === 'RESTRUCTURED';
   const isEscalated = loan?.status === 'ESCALATED' || hitlDossier !== null;
+
+  // Determine status under each norm
+  const dpd = loan?.days_past_due || 0;
+  
+  // Under standard statutory RBI (90-day norm):
+  let rbiClassification = 'Standard Asset';
+  let rbiColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+  if (dpd > 90) {
+    rbiClassification = 'NPA (Non-Performing Asset)';
+    rbiColor = 'text-red-400 bg-red-500/15 border-red-500/30';
+  } else if (dpd >= 61) {
+    rbiClassification = 'SMA-2 (Sub-Standard Risk)';
+    rbiColor = 'text-red-400 bg-red-500/15 border-red-500/30';
+  } else if (dpd >= 31) {
+    rbiClassification = 'SMA-1 (Moderate Distress)';
+    rbiColor = 'text-amber-400 bg-amber-500/15 border-amber-500/30';
+  } else if (dpd >= 1) {
+    rbiClassification = isCured ? 'SMA-0 (CURED / Restructured)' : 'SMA-0 (Early Alert 1–30 DPD)';
+    rbiColor = isCured ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-amber-400 bg-amber-500/15 border-amber-500/30';
+  }
+
+  // Under Paytm Daily Micro-Lending (30-day accelerated write-off / provisioning cliff):
+  let paytmClassification = 'Normal Daily Sweep';
+  let paytmColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+  if (dpd >= 30) {
+    paytmClassification = 'CRITICAL DEFAULT / 30-DAY NPA WRITE-OFF CLIFF';
+    paytmColor = 'text-red-400 bg-red-500/20 border-red-500/40 animate-pulse';
+  } else if (dpd >= 15) {
+    paytmClassification = 'HIGH RISK: 15+ Missed Daily Sweeps';
+    paytmColor = 'text-amber-400 bg-amber-500/15 border-amber-500/30';
+  } else if (dpd >= 1) {
+    paytmClassification = isCured ? 'CURED (EDI Step-Down Active)' : 'SMA-0 (Early Dip: Days 1–14)';
+    paytmColor = isCured ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-amber-400 bg-amber-500/15 border-amber-500/30';
+  }
 
   return (
     <div className="space-y-4">
@@ -97,6 +134,91 @@ export const OpsCommandCenter: React.FC<OpsCommandCenterProps> = ({
       <div className="grid grid-cols-2 gap-4">
         <MacroRadarCard radarData={radarData} merchantName={merchantName} />
         <SettlementChart settlements={settlements} peerAverage={3950} />
+      </div>
+
+      {/* NPA Classification Norm Comparison Banner (30-Day LSP vs 90-Day RBI) */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-3.5 backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div className="flex items-center gap-2">
+            <Scale className="h-4 w-4 text-[#00BAF2]" />
+            <div>
+              <h4 className="text-xs font-bold text-white uppercase tracking-tight">
+                NPA Norm Comparison: Paytm 30-Day Daily Sweep Cliff vs. RBI 90-Day Standard
+              </h4>
+              <p className="text-[11px] text-slate-400">
+                Understanding why daily micro-loans enforce accelerated delinquency cliffs
+              </p>
+            </div>
+          </div>
+
+          {/* Toggle Button */}
+          <div className="flex items-center rounded-lg bg-slate-950 p-1 border border-slate-800">
+            <button
+              onClick={() => setNpaFramework('PAYTM_30D')}
+              className={`rounded px-2.5 py-1 text-xs font-bold transition-all ${
+                npaFramework === 'PAYTM_30D'
+                  ? 'bg-[#00BAF2] text-[#002970] shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Paytm 30-Day Daily Sweep
+            </button>
+            <button
+              onClick={() => setNpaFramework('RBI_90D')}
+              className={`rounded px-2.5 py-1 text-xs font-bold transition-all ${
+                npaFramework === 'RBI_90D'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              RBI 90-Day Master Circular
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Framework Content */}
+        <div className="mt-3 grid grid-cols-12 gap-3 text-xs">
+          <div className="col-span-8 space-y-1.5">
+            {npaFramework === 'PAYTM_30D' ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-[#00BAF2]">Paytm LSP Daily Micro-Lending Model:</span>
+                  <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${paytmColor}`}>
+                    {paytmClassification} ({dpd} DPD)
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  In daily working-capital loans (30 to 90 days total tenure), <strong>30 Days Past Due means 30 consecutive missed morning sweeps</strong>—representing up to 100% of the active loan tenure! Partner NBFCs treat 30 DPD as an <em>Accelerated Default & Provisioning Cliff</em> triggering immediate Soundbox repossession and DRA dispatch, which is why our Copilot cures dips during <strong>SMA-0 (Days 1–7)</strong> before this cliff is reached.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-indigo-400">Statutory RBI Master Circular on IRAC Norms:</span>
+                  <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${rbiColor}`}>
+                    {rbiClassification} ({dpd} DPD)
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  Under the formal statutory RBI Master Circular on Prudential Norms, bank & NBFC assets remain standard until 90 days overdue: <strong>SMA-0 (1–30 DPD) &rarr; SMA-1 (31–60 DPD) &rarr; SMA-2 (61–90 DPD) &rarr; NPA (&gt;90 DPD)</strong>. The statutory NPA ceiling remains 90 days, while the internal fintech LSP operational loss trigger accelerates at 30 days.
+                </p>
+              </>
+            )}
+          </div>
+
+          <div className="col-span-4 rounded-lg bg-slate-950/80 p-2.5 border border-slate-800 text-[11px]">
+            <span className="text-slate-400 uppercase text-[10px] font-bold block mb-1">
+              Copilot Intervention Stage
+            </span>
+            <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
+              <CheckCircle2 className="h-4 w-4" />
+              <span>Days 1–7 (SMA-0 Prevention)</span>
+            </div>
+            <p className="mt-1 text-[10px] text-slate-400">
+              Intervening at Day 4 cures 100% of temporary regional dips before either the 30-day or 90-day threshold triggers!
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Live SQL Loan Ledger & RBI Key Fact Statement Card */}

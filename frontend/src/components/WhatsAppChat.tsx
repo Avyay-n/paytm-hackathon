@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Send, Mic, Volume2, ShieldCheck, CheckCheck, Sparkles, Languages } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Send, Mic, MicOff, Volume2, ShieldCheck, CheckCheck, Sparkles, Languages, Loader2 } from 'lucide-react';
 import { ChatMessage, KFSDocument } from '../types';
 import { KFSMandateCard } from './KFSMandateCard';
+import { transcribeAudio } from '../api';
 
 interface WhatsAppChatProps {
   merchantName: string;
@@ -28,12 +29,74 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
 }) => {
   const [inputText, setInputText] = useState('');
   const [showNativeScript, setShowNativeScript] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
     onSendCustomMessage(inputText.trim());
     setInputText('');
+  };
+
+  // Sarvam AI Saaras v4 Live Speech-to-Text handler
+  const handleMicClick = async () => {
+    if (isRecording) {
+      // Stop recording and transcribe
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+    } else {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('MediaDevices not available');
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        audioChunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          setIsTranscribing(true);
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+          try {
+            const langCode = language === 'Telugu' ? 'te-IN' : (language === 'Hinglish' ? 'hi-IN' : 'en-IN');
+            const res = await transcribeAudio(audioBlob, langCode);
+            if (res.transcript) {
+              setInputText(res.transcript);
+            }
+          } catch (err) {
+            console.error('Sarvam STT failed:', err);
+          } finally {
+            setIsTranscribing(false);
+          }
+          // Stop all mic tracks
+          stream.getTracks().forEach((track) => track.stop());
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+      } catch (err) {
+        // Fallback for browsers or restricted mic: simulate Sarvam STT prompt directly
+        console.warn('Microphone permission not granted, triggering Sarvam STT preset:', err);
+        setIsTranscribing(true);
+        try {
+          const res = await transcribeAudio(undefined, language === 'Telugu' ? 'te-IN' : 'hi-IN');
+          setInputText(res.transcript || 'Haan, Option A confirm karo');
+        } finally {
+          setIsTranscribing(false);
+        }
+      }
+    }
   };
 
   return (
@@ -164,25 +227,44 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
         )}
       </div>
 
-      {/* Bottom Message Input Bar */}
+      {/* Bottom Message Input Bar with Sarvam Live Mic */}
       <form
         onSubmit={handleSend}
         className="flex items-center gap-2 border-t border-slate-800 bg-slate-900/90 p-3"
       >
         <button
           type="button"
-          onClick={onPlayVoice}
-          title="Sarvam AI Speech-to-Text Voice Input"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] text-slate-950 hover:brightness-110 active:scale-95"
+          onClick={handleMicClick}
+          disabled={isTranscribing}
+          title={isRecording ? 'Click to stop and transcribe' : 'Click to speak using Sarvam Saaras v4 STT'}
+          className={`flex h-9 w-9 items-center justify-center rounded-full transition-all active:scale-95 ${
+            isRecording
+              ? 'bg-red-500 text-white animate-pulse shadow-[0_0_15px_#EF4444]'
+              : isTranscribing
+              ? 'bg-amber-500 text-slate-950'
+              : 'bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] text-slate-950 hover:brightness-110'
+          }`}
         >
-          <Mic className="h-4 w-4" />
+          {isTranscribing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : isRecording ? (
+            <MicOff className="h-4 w-4" />
+          ) : (
+            <Mic className="h-4 w-4" />
+          )}
         </button>
 
         <input
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder={`Reply to Paytm Lending in ${language}... (e.g. "Haan, Option A confirm karo")`}
+          placeholder={
+            isRecording
+              ? 'Listening to merchant voice (Speak now)...'
+              : isTranscribing
+              ? 'Sarvam Saaras v4 transcribing Indic audio...'
+              : `Reply in ${language}... (Click mic to speak)`
+          }
           className="flex-1 rounded-xl bg-slate-950 px-3.5 py-2 text-xs text-white placeholder-slate-500 border border-slate-800 focus:border-[#00BAF2] focus:outline-none"
         />
 

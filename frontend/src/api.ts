@@ -62,6 +62,25 @@ export async function runPipeline(params: {
   return res.json();
 }
 
+export async function transcribeAudio(audioBlob?: Blob, languageCode: string = "unknown"): Promise<{
+  success: boolean;
+  transcript: string;
+  model: string;
+}> {
+  const formData = new FormData();
+  if (audioBlob) {
+    formData.append('file', audioBlob, 'merchant_voice.wav');
+  }
+  formData.append('language_code', languageCode);
+
+  const res = await fetch(`${API_BASE}/sarvam/stt`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) throw new Error('STT transcription failed');
+  return res.json();
+}
+
 export async function fetchAuditLogs(merchantId: string): Promise<AgentAuditLog[]> {
   const res = await fetch(`${API_BASE}/audit-logs/${merchantId}`);
   if (!res.ok) throw new Error('Failed to fetch audit logs');

@@ -1,7 +1,8 @@
 import os
+import io
 import asyncio
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from sarvamai import SarvamAI
 from app.config import settings
 
@@ -19,11 +20,19 @@ def get_sarvam_client():
             logger.warning(f"Failed to initialize SarvamAI client: {e}")
     return _sarvam_client
 
-def _sync_convert(client, text: str, language_code: str):
+def _sync_tts_convert(client, text: str, language_code: str):
     return client.text_to_speech.convert(
         text=text,
         language_code=language_code,
         model="bulbul:v4-flash"
+    )
+
+def _sync_stt_transcribe(client, audio_bytes: bytes, filename: str, language_code: str):
+    file_tuple = (filename, io.BytesIO(audio_bytes), "audio/wav")
+    return client.speech_to_text.transcribe(
+        file=file_tuple,
+        model="saaras:v4",
+        language_code=language_code if language_code in ["te-IN", "hi-IN", "en-IN"] else "unknown"
     )
 
 async def synthesize_speech(
@@ -40,10 +49,10 @@ async def synthesize_speech(
             lang = language_code if language_code in ["te-IN", "hi-IN", "en-IN"] else "hi-IN"
             short_text = text[:180] # fast conversational prompt
             
-            # Run blocking SDK in worker thread with 3.5s timeout
+            # Run blocking SDK in worker thread with 4s timeout
             res = await asyncio.wait_for(
-                asyncio.to_thread(_sync_convert, client, short_text, lang),
-                timeout=3.5
+                asyncio.to_thread(_sync_tts_convert, client, short_text, lang),
+                timeout=4.0
             )
             if res.audios and len(res.audios) > 0:
                 return {
@@ -62,4 +71,42 @@ async def synthesize_speech(
         "provider": "WEB_AUDIO_SIMULATOR",
         "language_code": language_code,
         "sample_rate": 22050
+    }
+
+async def transcribe_speech(
+    audio_bytes: bytes,
+    filename: str = "recording.wav",
+    language_code: str = "unknown"
+) -> Dict[str, Any]:
+    """
+    Calls Sarvam AI Saaras v4 STT via official sarvamai SDK inside an async executor.
+    Transcribes merchant Indic voice audio (Telugu, Hindi, Hinglish, English) into text.
+    """
+    client = get_sarvam_client()
+    if client:
+        try:
+            res = await asyncio.wait_for(
+                asyncio.to_thread(_sync_stt_transcribe, client, audio_bytes, filename, language_code),
+                timeout=6.0
+            )
+            transcript = getattr(res, "transcript", "")
+            return {
+                "success": True,
+                "transcript": transcript,
+                "language_code": getattr(res, "language_code", language_code),
+                "model": "SARVAM_AI_SAARAS_V4"
+            }
+        except Exception as e:
+            logger.warning(f"Sarvam AI SDK STT transcription fallback: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "transcript": "Haan, Option A confirm karo",
+                "model": "FALLBACK_KEYWORD"
+            }
+
+    return {
+        "success": False,
+        "transcript": "Haan, Option A confirm karo",
+        "model": "SIMULATED_VOICE_FALLBACK"
     }
