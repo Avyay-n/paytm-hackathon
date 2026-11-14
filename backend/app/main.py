@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timezone
 import base64
+import asyncio
 
 from app.config import settings
 from app.database import get_db, Base, engine
@@ -176,6 +177,19 @@ async def speech_to_text(
 class TTSRequest(BaseModel):
     text: str
     language_code: Optional[str] = "te-IN"
+
+@app.on_event("startup")
+async def startup_warmup():
+    async def _do_warmup():
+        try:
+            # Prewarm cache for Ramesh Kirana default Telugu & Hindi voice note for instant 0ms demo response
+            te_text = "నమస్కారం రమేష్ కుమార్ గారు పేటీఎం రికవరీ కోపైలట్ ఎస్ఎంఎఫ్జి ఇండియా క్రెడిట్ నుండి. పిన్ కోడ్ 500081 లో భారీ వర్షాలు మరియు రోడ్డు నిర్మాణ పనుల వల్ల మీ వ్యాపారంలో 45 శాతం అమ్మకాలు తగ్గినట్లు మా సిస్టమ్ గుర్తించింది. మీకు ఎలాంటి పెనాల్టీ పడకుండా ఉండేందుకు మీ రోజువారీ ఈఎంఐ ని 500 నుండి 150 రూపాయలకు 14 రోజుల పాటు తగ్గిస్తున్నాము. దీన్ని ఆమోదించమంటారా?"
+            await synthesize_speech(text=te_text, language_code="te-IN")
+            hi_text = "नमस्ते रमेश कुमार जी पेटीएम रिकवरी कोपायलट एसएमएफजी इंडिया क्रेडिट की ओर से। आपके क्षेत्र पिन कोड 500081 में भारी बारिश और मेट्रो निर्माण के कारण बिक्री में 45 प्रतिशत की गिरावट दर्ज हुई है। हम आपकी दैनिक किस्त 500 से घटाकर 150 रुपये कर रहे हैं।"
+            await synthesize_speech(text=hi_text, language_code="hi-IN")
+        except Exception:
+            pass
+    asyncio.create_task(_do_warmup())
 
 @app.post("/api/sarvam/tts")
 async def text_to_speech(req: TTSRequest):

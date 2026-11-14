@@ -64,19 +64,73 @@ export const App: React.FC = () => {
   const [hitlDossier, setHitlDossier] = useState<HITLDossier | null>(null);
   const [isCured, setIsCured] = useState(false);
 
-  // Audio Player Reference
+  // Audio Player Reference and In-Memory Audio Cache for instant 0ms replays
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCacheRef = useRef<Map<string, string>>(new Map());
 
-  // Strips emojis and formatting symbols before feeding to Speech Synthesis / Sarvam
-  const cleanTextForSpeech = (text: string): string => {
-    return text
+  // Warm up voices on mount to ensure SpeechSynthesisVoice list is instantly available
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  }, []);
+
+  // Strips emojis, formatting, and phonetically transliterates numbers & English terms
+  // so browser speech synthesis NEVER switches to an English male voice in between!
+  const normalizeTextForIndicVoice = (text: string, langCode: string = 'te-IN'): string => {
+    let cleaned = text
       // Remove all unicode emojis
       .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{1F000}-\u{1F02F}\u{1F0A0}-\u{1F0FF}]/gu, '')
       // Remove formatting punctuation that could be vocalized awkwardly
       .replace(/[•*#_~`[\]()\-]/g, ' ')
-      // Normalize whitespace
       .replace(/\s+/g, ' ')
       .trim();
+
+    if (langCode.startsWith('te')) {
+      // Map currency, numbers and English acronyms phonetically into pure Telugu
+      // This strictly prevents the Windows speech engine from switching to a male English voice!
+      cleaned = cleaned
+        .replace(/₹\s*500/g, '500 రూపాయలు')
+        .replace(/₹\s*150/g, '150 రూపాయలు')
+        .replace(/₹\s*400/g, '400 రూపాయలు')
+        .replace(/₹\s*6,?800/g, '6800 రూపాయలు')
+        .replace(/₹\s*(\d+)/g, '$1 రూపాయలు')
+        .replace(/\bEMI\b/gi, 'ఈఎంఐ')
+        .replace(/\bEDIs?\b/gi, 'రోజువారీ వాయిదా')
+        .replace(/45%/g, '45 శాతం')
+        .replace(/(\d+)%/g, '$1 శాతం')
+        .replace(/1-click|1-క్లిక్/gi, 'ఒకే క్లిక్')
+        .replace(/\bPaytm\b/gi, 'పేటీఎం')
+        .replace(/Pin Code|పిన్ కోడ్/gi, 'పిన్ కోడ్')
+        .replace(/\bUPI\b/gi, 'యూపీఐ')
+        .replace(/\bQR\b/gi, 'క్యూఆర్')
+        .replace(/\bSMFG\b/gi, 'ఎస్ఎంఎఫ్జి')
+        .replace(/\bNPCI\b/gi, 'ఎన్పీసీఐ')
+        .replace(/\bDRA\b/gi, 'డీఆర్ఏ')
+        .replace(/#DRA_774/gi, 'డీఆర్ఏ 774');
+    } else if (langCode.startsWith('hi')) {
+      cleaned = cleaned
+        .replace(/₹\s*500/g, '500 रुपये')
+        .replace(/₹\s*150/g, '150 रुपये')
+        .replace(/₹\s*400/g, '400 रुपये')
+        .replace(/₹\s*6,?800/g, '6800 रुपये')
+        .replace(/₹\s*(\d+)/g, '$1 रुपये')
+        .replace(/\bEMI\b/gi, 'ईएमआई')
+        .replace(/\bEDIs?\b/gi, 'दैनिक किस्त')
+        .replace(/45%/g, '45 प्रतिशत')
+        .replace(/(\d+)%/g, '$1 प्रतिशत')
+        .replace(/1-click|1-क्लिक/gi, 'एक क्लिक')
+        .replace(/\bPaytm\b/gi, 'पेटीएम')
+        .replace(/\bUPI\b/gi, 'यूपीआई')
+        .replace(/\bQR\b/gi, 'क्यूआर')
+        .replace(/\bSMFG\b/gi, 'एसएमएफजी')
+        .replace(/\bNPCI\b/gi, 'एनपीसीआई')
+        .replace(/\bDRA\b/gi, 'डीआरए');
+    }
+    return cleaned;
   };
 
 
@@ -374,7 +428,7 @@ export const App: React.FC = () => {
     setIsSpeaking(false);
   };
 
-  // Voice playback with Sarvam AI Bulbul v4 and Pause/Stop support
+  // Voice playback with Sarvam AI Bulbul v4, 0ms Cache, and Locked Voice SpeechSynthesis
   const handlePlayVoice = async (rawText?: string, langCode: string = 'te-IN') => {
     // If currently playing, clicking pause stops speech immediately
     if (isSpeaking) {
@@ -383,24 +437,21 @@ export const App: React.FC = () => {
     }
 
     handleStopVoice();
-    const cleanText = cleanTextForSpeech(
+    const cleanText = normalizeTextForIndicVoice(
       rawText ||
       chatMessage?.display_text ||
-      'Namaste. Paytm Recovery Copilot ki taraf se.'
+      'Namaste. Paytm Recovery Copilot ki taraf se.',
+      langCode
     );
 
     setIsSpeaking(true);
 
-    // 1. Synthesize audio via Sarvam AI Bulbul v4 on backend
-    try {
-      const res = await fetch(`${API_BASE}/sarvam/tts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: cleanText, language_code: langCode })
-      });
-      const data = await res.json();
-      if (data.success && data.audio_base64) {
-        const audio = new Audio('data:audio/wav;base64,' + data.audio_base64);
+    const cacheKey = `${langCode}:${cleanText.trim()}`;
+
+    // 1. Instant Cache Check: If audio is already synthesized or preloaded, play in < 10ms
+    if (audioCacheRef.current.has(cacheKey)) {
+      try {
+        const audio = new Audio(audioCacheRef.current.get(cacheKey));
         currentAudioRef.current = audio;
         audio.onended = () => {
           setIsSpeaking(false);
@@ -412,67 +463,102 @@ export const App: React.FC = () => {
         };
         await audio.play();
         return;
+      } catch (e) {
+        console.warn('Cached audio playback error:', e);
       }
-    } catch (err) {
-      console.warn('Sarvam AI backend call failed, falling back to speech synthesis:', err);
     }
 
-    // 2. Fallback to window.speechSynthesis with sentence chunking & keepalive
+    // 2. Fetch from Sarvam AI with a fast 2.0s timeout to eliminate initial waiting lag
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+      const res = await fetch(`${API_BASE}/sarvam/tts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: cleanText, language_code: langCode }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.audio_base64) {
+          const audioUri = 'data:audio/wav;base64,' + data.audio_base64;
+          // Store in memory cache for sub-millisecond future replays
+          audioCacheRef.current.set(cacheKey, audioUri);
+
+          const audio = new Audio(audioUri);
+          currentAudioRef.current = audio;
+          audio.onended = () => {
+            setIsSpeaking(false);
+            currentAudioRef.current = null;
+          };
+          audio.onerror = () => {
+            setIsSpeaking(false);
+            currentAudioRef.current = null;
+          };
+          await audio.play();
+          return;
+        }
+      }
+    } catch (err) {
+      // Deferred or offline: immediately fall back to browser speech synthesis without delay
+    }
+
+    // 3. Fallback to window.speechSynthesis with a LOCKED single voice persona
+    // (Strictly prevents Windows/Chrome from switching to an English male voice in between!)
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
 
-      // Split into clean sentence chunks to prevent Chromium's 15s cutoff bug
-      const sentences = cleanText
-        .split(/(?<=[.!?।])\s+/)
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
-
-      const targetSentences = sentences.length > 0 ? sentences : [cleanText];
-
       const voices = window.speechSynthesis.getVoices();
-      let chosenVoice: SpeechSynthesisVoice | undefined;
+      let lockedVoice: SpeechSynthesisVoice | null = null;
 
       if (langCode.startsWith('te')) {
-        chosenVoice = voices.find((v) => v.lang.toLowerCase().includes('te'));
+        lockedVoice = voices.find((v) => v.lang.toLowerCase().includes('te')) ||
+                      voices.find((v) => v.lang.toLowerCase().includes('hi')) ||
+                      voices.find((v) => v.lang.toLowerCase().includes('en-in')) ||
+                      voices.find((v) => v.lang.toLowerCase().startsWith('en')) ||
+                      voices[0] || null;
       } else if (langCode.startsWith('hi')) {
-        chosenVoice = voices.find((v) => v.lang.toLowerCase().includes('hi'));
+        lockedVoice = voices.find((v) => v.lang.toLowerCase().includes('hi')) ||
+                      voices.find((v) => v.lang.toLowerCase().includes('en-in')) ||
+                      voices.find((v) => v.lang.toLowerCase().startsWith('en')) ||
+                      voices[0] || null;
       } else {
-        chosenVoice = voices.find(
-          (v) => v.lang.toLowerCase().includes('en-in') || v.lang.toLowerCase().includes('en')
-        );
+        lockedVoice = voices.find((v) => v.lang.toLowerCase().includes('en-in')) ||
+                      voices.find((v) => v.lang.toLowerCase().startsWith('en')) ||
+                      voices[0] || null;
       }
 
-      let currentSentenceIdx = 0;
-
-      const speakNextSentence = () => {
-        if (currentSentenceIdx >= targetSentences.length) {
-          if (keepAliveIntervalRef.current) {
-            clearInterval(keepAliveIntervalRef.current);
-            keepAliveIntervalRef.current = null;
-          }
-          setIsSpeaking(false);
-          return;
-        }
-
-        const utterance = new SpeechSynthesisUtterance(targetSentences[currentSentenceIdx]);
+      // Single continuous utterance ensures Windows speech engine NEVER switches voices mid-sentence
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      if (lockedVoice) {
+        utterance.voice = lockedVoice;
+        utterance.lang = lockedVoice.lang;
+      } else {
         utterance.lang = langCode;
-        utterance.rate = 0.95;
-        if (chosenVoice) utterance.voice = chosenVoice;
+      }
+      utterance.rate = 0.93;
+      utterance.pitch = 1.0;
 
-        utterance.onend = () => {
-          currentSentenceIdx++;
-          speakNextSentence();
-        };
-
-        utterance.onerror = () => {
-          currentSentenceIdx++;
-          speakNextSentence();
-        };
-
-        window.speechSynthesis.speak(utterance);
+      utterance.onend = () => {
+        if (keepAliveIntervalRef.current) {
+          clearInterval(keepAliveIntervalRef.current);
+          keepAliveIntervalRef.current = null;
+        }
+        setIsSpeaking(false);
       };
 
-      // Keepalive heartbeat to ensure long speech is never paused by Chrome
+      utterance.onerror = () => {
+        if (keepAliveIntervalRef.current) {
+          clearInterval(keepAliveIntervalRef.current);
+          keepAliveIntervalRef.current = null;
+        }
+        setIsSpeaking(false);
+      };
+
+      // Keepalive heartbeat to ensure long speech is never halted by Chromium
       if (keepAliveIntervalRef.current) clearInterval(keepAliveIntervalRef.current);
       keepAliveIntervalRef.current = setInterval(() => {
         if (window.speechSynthesis.speaking) {
@@ -484,9 +570,9 @@ export const App: React.FC = () => {
             keepAliveIntervalRef.current = null;
           }
         }
-      }, 5000);
+      }, 4000);
 
-      speakNextSentence();
+      window.speechSynthesis.speak(utterance);
     } else {
       setIsSpeaking(false);
     }

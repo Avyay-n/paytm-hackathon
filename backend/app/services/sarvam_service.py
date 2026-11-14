@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 # Cache SDK client
 _sarvam_client = None
+# In-memory audio cache for sub-millisecond instant voice playback
+_tts_cache: Dict[str, str] = {}
 
 def get_sarvam_client():
     global _sarvam_client
@@ -42,23 +44,37 @@ async def synthesize_speech(
 ) -> Dict[str, Any]:
     """
     Calls Sarvam AI Bulbul v4 TTS via official sarvamai SDK inside an async executor.
+    Employs an in-memory cache to return instant < 5ms audio on recurring or demo archetype clicks.
     """
+    lang = language_code if language_code in ["te-IN", "hi-IN", "en-IN"] else "hi-IN"
+    clean_text = text.strip()[:500]
+    cache_key = f"{lang}:{clean_text}"
+
+    # Return instant cached audio if available
+    if cache_key in _tts_cache:
+        logger.info(f"Instant TTS Cache Hit for [{lang}] ({len(clean_text)} chars)")
+        return {
+            "success": True,
+            "audio_base64": _tts_cache[cache_key],
+            "provider": "SARVAM_AI_BULBUL_V4_FLASH_CACHED",
+            "language_code": lang
+        }
+
     client = get_sarvam_client()
     if client:
         try:
-            lang = language_code if language_code in ["te-IN", "hi-IN", "en-IN"] else "hi-IN"
-            # Ensure full complete sentence is passed without truncation
-            full_text = text[:500]
-            
-            # Run blocking SDK in worker thread with 12s timeout for complete multi-sentence audio
+            # Run blocking SDK in worker thread with 12s timeout
             res = await asyncio.wait_for(
-                asyncio.to_thread(_sync_tts_convert, client, full_text, lang),
+                asyncio.to_thread(_sync_tts_convert, client, clean_text, lang),
                 timeout=12.0
             )
             if res.audios and len(res.audios) > 0:
+                audio_b64 = res.audios[0]
+                # Store in cache for sub-millisecond future replays
+                _tts_cache[cache_key] = audio_b64
                 return {
                     "success": True,
-                    "audio_base64": res.audios[0],
+                    "audio_base64": audio_b64,
                     "provider": "SARVAM_AI_BULBUL_V4_FLASH",
                     "language_code": lang
                 }

@@ -8,7 +8,19 @@ import {
   AgentAuditLog
 } from './types';
 
-export const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/+$/, '') + '/api';
+// Resolve API base URL dynamically with fallback for production cloud deployments
+const getApiBase = (): string => {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, '') + '/api';
+  }
+  // In production browser environments (Vercel), default to the live Render cloud backend
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'https://paytm-hackathon.onrender.com/api';
+  }
+  return 'http://localhost:8000/api';
+};
+
+export const API_BASE = getApiBase();
 
 export async function fetchHealth() {
   const res = await fetch(`${API_BASE}/health`);
