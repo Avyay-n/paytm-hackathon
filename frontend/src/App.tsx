@@ -504,11 +504,11 @@ export const App: React.FC = () => {
       {/* ========================================================================= */}
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0">
         {/* ======================================================================= */}
-        {/* LEFT PANEL (7 Columns — Deep Paytm Navy #002970 — Mascot & Backend X-Ray) */}
+        {/* LEFT PANEL (7 Columns — Midnight Fintech Aesthetic — Mascot & Backend X-Ray) */}
         {/* ======================================================================= */}
-        <section className="lg:col-span-7 bg-[#002970] p-4 md:p-6 space-y-5 border-r border-cyan-500/20 shadow-2xl overflow-y-auto relative">
+        <section className="lg:col-span-7 bg-gradient-to-b from-[#001D4D] via-[#00245E] to-[#001633] p-5 md:p-6 space-y-5 border-r border-white/10 shadow-2xl overflow-y-auto relative">
           {/* Subtle Ambient Radial Glow */}
-          <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#00BAF2]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#00BAF2]/5 rounded-full blur-3xl pointer-events-none" />
 
           {/* Section A: AI Mascot Narrator & Guided Tour Bar */}
           <MascotNarrator
