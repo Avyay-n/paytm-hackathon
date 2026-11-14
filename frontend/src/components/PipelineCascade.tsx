@@ -28,9 +28,9 @@ export const PipelineCascade: React.FC<PipelineCascadeProps> = ({ nodes }) => {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
-        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-tight flex items-center gap-1.5">
-          <Clock className="h-3.5 w-3.5 text-[#002970]" />
-          5-Node Execution Pipeline Trace
+        <h4 className="text-xs font-bold text-[#002970] uppercase tracking-tight flex items-center gap-1.5">
+          <Clock className="h-3.5 w-3.5 text-[#00BAF2]" />
+          5-Node Autonomous Execution Pipeline Trace
         </h4>
         <span className="font-mono text-[11px] text-slate-400">Deterministic Flow</span>
       </div>
@@ -46,21 +46,21 @@ export const PipelineCascade: React.FC<PipelineCascadeProps> = ({ nodes }) => {
               key={node.node_id}
               className={`flex items-start justify-between rounded-lg p-2.5 border text-xs transition-colors ${
                 isSuccess
-                  ? 'bg-slate-50 border-slate-200 text-slate-800'
+                  ? 'bg-slate-50/70 border-slate-200 text-slate-800'
                   : isBlocked
-                  ? 'bg-red-50 border-red-200 text-red-900'
+                  ? 'bg-rose-50/70 border-rose-200 text-rose-900'
                   : isEscalated
-                  ? 'bg-amber-50 border-amber-200 text-amber-900'
+                  ? 'bg-blue-50/60 border-blue-200 text-[#002970]'
                   : 'bg-white border-slate-200 text-slate-800'
               }`}
             >
               <div className="flex items-start gap-2.5">
                 <div className={`p-1 rounded mt-0.5 ${
                   isSuccess
-                    ? 'bg-emerald-100 text-emerald-800'
+                    ? 'bg-blue-100/80 text-[#002970]'
                     : isBlocked
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-amber-100 text-amber-800'
+                    ? 'bg-rose-100 text-rose-800'
+                    : 'bg-blue-100/80 text-[#002970]'
                 }`}>
                   {getNodeIcon(node.node_id)}
                 </div>
@@ -69,7 +69,7 @@ export const PipelineCascade: React.FC<PipelineCascadeProps> = ({ nodes }) => {
                     <span className="font-mono text-[10px] text-slate-400 uppercase">
                       Node {node.node_id}
                     </span>
-                    <span className="font-bold text-slate-900">{node.node_name}</span>
+                    <span className="font-bold text-[#002970]">{node.node_name}</span>
                   </div>
                   <p className="text-[11px] text-slate-600 mt-0.5">{node.headline}</p>
                 </div>
@@ -79,10 +79,10 @@ export const PipelineCascade: React.FC<PipelineCascadeProps> = ({ nodes }) => {
                 <span className="font-mono text-[10px] text-slate-400">{node.latency_ms}ms</span>
                 <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase ${
                   isSuccess
-                    ? 'bg-emerald-100 text-emerald-800'
+                    ? 'bg-blue-50 text-[#002970] border border-blue-200'
                     : isBlocked
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-amber-100 text-amber-800'
+                    ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                    : 'bg-blue-50 text-[#002970] border border-blue-200'
                 }`}>
                   {node.status}
                 </span>

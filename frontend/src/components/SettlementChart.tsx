@@ -40,20 +40,20 @@ export const SettlementChart: React.FC<SettlementChartProps> = ({
             <span className="text-slate-600 text-[11px]">Baseline</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-amber-500" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-[#00BAF2]" />
             <span className="text-slate-600 text-[11px]">Dip (-45%)</span>
           </div>
         </div>
       </div>
 
-      {/* Bar Chart Visualization */}
+      {/* Bar Chart Visualization in Paytm Navy & Cyan */}
       <div className="relative mt-3 h-32 w-full pt-4">
         {/* Peer Cluster Benchmark Line */}
         <div
           style={{ bottom: `${(peerAverage / maxVolume) * 100}%` }}
-          className="absolute left-0 right-0 border-b border-dashed border-indigo-400 z-10 pointer-events-none"
+          className="absolute left-0 right-0 border-b border-dashed border-[#002970]/40 z-10 pointer-events-none"
         >
-          <span className="absolute -top-3.5 right-0 rounded bg-indigo-50 px-1.5 py-0.2 font-mono text-[9px] text-indigo-700 border border-indigo-200">
+          <span className="absolute -top-3.5 right-0 rounded bg-blue-50 px-1.5 py-0.2 font-mono text-[9px] text-[#002970] border border-blue-200">
             Peer Avg: ₹{peerAverage.toFixed(0)}/day
           </span>
         </div>
@@ -76,9 +76,9 @@ export const SettlementChart: React.FC<SettlementChartProps> = ({
                   style={{ height: `${Math.max(heightPct, 4)}%` }}
                   className={`w-full rounded-t transition-all duration-200 ${
                     s.gross_volume === 0
-                      ? 'bg-red-400'
+                      ? 'bg-rose-400'
                       : isDip
-                      ? 'bg-amber-500 group-hover:bg-amber-600'
+                      ? 'bg-[#00BAF2] group-hover:bg-[#009FD0]'
                       : 'bg-[#002970] group-hover:bg-[#003B95]'
                   }`}
                 />
@@ -92,7 +92,7 @@ export const SettlementChart: React.FC<SettlementChartProps> = ({
       <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1 px-1">
         <span>Day 1</span>
         <span>Day 15</span>
-        <span className="text-amber-700 font-bold">Day 24 (Monsoon)</span>
+        <span className="text-[#002970] font-bold">Day 24 (Monsoon)</span>
         <span>Day 30 (Today)</span>
       </div>
 
@@ -104,7 +104,7 @@ export const SettlementChart: React.FC<SettlementChartProps> = ({
               <strong>Day {hoveredDay.day_index}</strong> ({hoveredDay.settlement_date}):{' '}
               <strong className="text-[#002970]">₹{hoveredDay.gross_volume.toLocaleString('en-IN')}</strong> ({hoveredDay.tx_count} txs)
             </span>
-            <span className="text-[11px] text-amber-700 italic">{hoveredDay.anomaly_note}</span>
+            <span className="text-[11px] text-[#002970] italic">{hoveredDay.anomaly_note}</span>
           </>
         ) : (
           <span className="text-slate-500 text-[11px] flex items-center gap-1.5">

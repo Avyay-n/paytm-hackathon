@@ -41,7 +41,6 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
     setInputText('');
   };
 
-  // Sarvam AI Saaras v4 Live Speech-to-Text handler
   const handleMicClick = async () => {
     if (isRecording) {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -99,11 +98,13 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
   return (
     <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#002970] text-white font-bold text-xs">
-            {merchantName.charAt(0)}
-          </div>
+          <img
+            src="/paytm-circle-logo.png"
+            alt="Paytm Profile"
+            className="h-9 w-9 rounded-full object-cover shadow-sm border border-slate-200"
+          />
 
           <div>
             <div className="flex items-center gap-1.5">
@@ -111,29 +112,29 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
               <CheckCheck className="h-3.5 w-3.5 text-[#00BAF2]" />
             </div>
             <p className="text-[11px] text-slate-500">
-              {merchantName} • <span className="text-[#002970] font-medium">{language}</span>
+              {merchantName} • <span className="text-[#002970] font-semibold">{language}</span>
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+          <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-[#002970] border border-blue-200">
             DPDP VERIFIED
           </span>
           <button
             onClick={() => setShowNativeScript(!showNativeScript)}
             className="flex items-center gap-1 rounded bg-white hover:bg-slate-100 px-2 py-1 text-xs text-slate-700 border border-slate-200 transition-colors"
           >
-            <Languages className="h-3 w-3 text-orange-600" />
+            <Languages className="h-3 w-3 text-[#00BAF2]" />
             <span className="text-[11px]">{showNativeScript ? 'Latin' : 'Native Script'}</span>
           </button>
         </div>
       </div>
 
       {/* Messages Stream */}
-      <div className="flex-1 space-y-3.5 overflow-y-auto p-4 bg-slate-50/40">
-        <div className="mx-auto max-w-xs rounded-full bg-slate-100 px-3 py-1 text-center text-[10px] text-slate-500 border border-slate-200/80 flex items-center justify-center gap-1">
-          <ShieldCheck className="h-3 w-3 text-emerald-600" />
+      <div className="flex-1 space-y-3.5 overflow-y-auto p-4 bg-slate-50/50">
+        <div className="mx-auto max-w-xs rounded-full bg-white px-3 py-1 text-center text-[10px] text-slate-500 border border-slate-200 flex items-center justify-center gap-1 shadow-2xs">
+          <ShieldCheck className="h-3 w-3 text-[#002970]" />
           <span>Paytm Lending & RBI Fair Practices Encrypted</span>
         </div>
 
@@ -141,7 +142,7 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
           <div className="max-w-[94%] rounded-xl rounded-tl-sm bg-white p-3.5 border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
               <span className="flex items-center gap-1 text-xs font-bold text-[#002970]">
-                <Sparkles className="h-3 w-3 text-orange-500" />
+                <Sparkles className="h-3 w-3 text-[#00BAF2]" />
                 Paytm Recovery Copilot
               </span>
               <span className="font-mono text-[10px] text-slate-400">14:02 IST</span>
@@ -153,22 +154,22 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
                 : chatMessage.display_text}
             </p>
 
-            {/* Sarvam Audio Player */}
-            <div className="mt-3 flex items-center justify-between rounded-lg bg-orange-50/70 p-2 border border-orange-200/60">
+            {/* Sarvam Audio Player in Clean Paytm Blue */}
+            <div className="mt-3 flex items-center justify-between rounded-lg bg-blue-50/60 p-2 border border-blue-100">
               <button
                 onClick={onPlayVoice}
-                className="flex items-center gap-1.5 rounded-md bg-orange-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-orange-700 transition-all shadow-sm"
+                className="flex items-center gap-1.5 rounded-md bg-[#002970] px-2.5 py-1 text-[11px] font-bold text-white hover:bg-[#003B95] transition-all shadow-sm"
               >
-                <Volume2 className="h-3.5 w-3.5" />
+                <Volume2 className="h-3.5 w-3.5 text-[#00BAF2]" />
                 <span>{isPlayingVoice ? 'Pause Voice' : 'Listen Sarvam Voice'}</span>
               </button>
 
-              <span className="font-mono text-[10px] text-orange-800">
+              <span className="font-mono text-[10px] text-[#002970]">
                 {chatMessage.audio?.provider || 'Sarvam Bulbul v4'}
               </span>
             </div>
 
-            {/* Action Chips */}
+            {/* Action Chips in Paytm Blue Theme */}
             {chatMessage.options && !kfsDocument && (
               <div className="mt-3 flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
                 {chatMessage.options.map((opt) => (
@@ -177,11 +178,11 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
                     onClick={() => onSelectOption(opt.id)}
                     className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all active:scale-95 ${
                       opt.variant === 'cyan'
-                        ? 'bg-[#002970] text-white hover:bg-[#003B95]'
+                        ? 'bg-[#002970] text-white hover:bg-[#003B95] shadow-xs'
                         : opt.variant === 'indigo'
-                        ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100'
+                        ? 'bg-blue-50 text-[#002970] border border-blue-200 hover:bg-blue-100'
                         : opt.variant === 'amber'
-                        ? 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                        ? 'bg-slate-100 text-slate-800 border border-slate-300 hover:bg-slate-200'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
@@ -219,8 +220,8 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
             isRecording
               ? 'bg-red-500 text-white animate-pulse'
               : isTranscribing
-              ? 'bg-amber-100 text-amber-800'
-              : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+              ? 'bg-blue-100 text-[#002970]'
+              : 'bg-blue-50 text-[#002970] hover:bg-blue-100 border border-blue-200'
           }`}
         >
           {isTranscribing ? (
@@ -228,7 +229,7 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
           ) : isRecording ? (
             <MicOff className="h-3.5 w-3.5" />
           ) : (
-            <Mic className="h-3.5 w-3.5" />
+            <Mic className="h-3.5 w-3.5 text-[#002970]" />
           )}
         </button>
 
@@ -248,9 +249,9 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
 
         <button
           type="submit"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-[#002970] text-white hover:bg-[#003B95] active:scale-95 transition-colors"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-[#002970] text-white hover:bg-[#003B95] active:scale-95 transition-colors shadow-sm"
         >
-          <Send className="h-3.5 w-3.5" />
+          <Send className="h-3.5 w-3.5 text-[#00BAF2]" />
         </button>
       </form>
     </div>
