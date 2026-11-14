@@ -15,7 +15,7 @@ const getApiBase = (): string => {
   }
   // In production browser environments (Vercel), default to the live Render cloud backend
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://paytm-hackathon.onrender.com/api';
+    return 'https://paytm-hackathon-x5q0.onrender.com/api';
   }
   return 'http://localhost:8000/api';
 };
