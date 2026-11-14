@@ -1,5 +1,10 @@
 import os
+from dotenv import load_dotenv
 from pydantic import BaseModel
+
+# Load .env from current and parent directory
+load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 
 class Settings(BaseModel):
     APP_NAME: str = "Paytm Recovery Copilot"
