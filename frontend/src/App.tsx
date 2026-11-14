@@ -10,7 +10,9 @@ import {
   PhoneCall,
   Lock,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Smartphone,
+  Sliders
 } from 'lucide-react';
 import {
   Merchant,
@@ -23,6 +25,13 @@ import {
   HITLDossier,
   AgentAuditLog
 } from './types';
+import {
+  FALLBACK_MERCHANTS,
+  FALLBACK_LOANS,
+  FALLBACK_MACRO,
+  FALLBACK_SETTLEMENTS,
+  FALLBACK_AUDIT_LOGS
+} from './fallbackData';
 import {
   fetchMerchants,
   fetchMerchantDetail,
@@ -49,15 +58,18 @@ export const App: React.FC = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
 
-  // Data States
-  const [merchants, setMerchants] = useState<Merchant[]>([]);
+  // Mobile View Switcher (defaults to 'PHONE' on mobile screens)
+  const [mobileView, setMobileView] = useState<'PHONE' | 'CONSOLE'>('PHONE');
+
+  // Data States — Pristine initial fallback seed ensures Phone Simulator renders in 0.0s for any visitor
+  const [merchants, setMerchants] = useState<Merchant[]>(FALLBACK_MERCHANTS);
   const [selectedMerchantId, setSelectedMerchantId] = useState<string>('MCH_001');
-  const [currentMerchant, setCurrentMerchant] = useState<Merchant | null>(null);
-  const [currentLoan, setCurrentLoan] = useState<Loan | null>(null);
-  const [macroSignal, setMacroSignal] = useState<RegionalMacroSignal | null>(null);
-  const [settlements, setSettlements] = useState<UpiSettlement[]>([]);
-  const [loans, setLoans] = useState<Loan[]>([]);
-  const [auditLogs, setAuditLogs] = useState<AgentAuditLog[]>([]);
+  const [currentMerchant, setCurrentMerchant] = useState<Merchant | null>(FALLBACK_MERCHANTS[0]);
+  const [currentLoan, setCurrentLoan] = useState<Loan | null>(FALLBACK_LOANS[0]);
+  const [macroSignal, setMacroSignal] = useState<RegionalMacroSignal | null>(FALLBACK_MACRO);
+  const [settlements, setSettlements] = useState<UpiSettlement[]>(FALLBACK_SETTLEMENTS);
+  const [loans, setLoans] = useState<Loan[]>(FALLBACK_LOANS);
+  const [auditLogs, setAuditLogs] = useState<AgentAuditLog[]>(FALLBACK_AUDIT_LOGS);
   const [pipelineNodes, setPipelineNodes] = useState<NodeResult[]>([]);
   const [chatMessage, setChatMessage] = useState<ChatMessage | null>(null);
   const [kfsDocument, setKfsDocument] = useState<KFSDocument | null>(null);
@@ -207,7 +219,38 @@ export const App: React.FC = () => {
         setHitlDossier(null);
       }
     } catch (err) {
-      console.error('Failed to fetch merchant details:', err);
+      console.warn('Failed to fetch live merchant details, using fallback archetype data:', err);
+      const fbM = FALLBACK_MERCHANTS.find((m) => m.id === merchantId) || FALLBACK_MERCHANTS[0];
+      const fbL = FALLBACK_LOANS.find((l) => l.merchant_id === merchantId) || FALLBACK_LOANS[0];
+      setCurrentMerchant(fbM);
+      setCurrentLoan(fbL);
+      setSelectedMerchantId(merchantId);
+      if (merchantId === 'MCH_003') {
+        setHitlDossier({
+          dossier_id: 'DOS_APEX_9903',
+          loan_id: 'LN_9003',
+          borrower_name: 'Vikram Reddy',
+          business_name: 'Apex Electronics & Gadgets',
+          lender_nbfc_partner: 'Piramal Finance (Regulated Entity)',
+          sma_bucket: 'SMA-2 (64 DPD — High NPA Risk)',
+          days_past_due: 64,
+          principal_at_risk: 120000,
+          soundbox_device_id: 'PSB_HYD_8842',
+          soundbox_heartbeat: 'OFFLINE_14_DAYS',
+          peer_divergence_finding: '0 txns for 25 consecutive days while corridor trade normal.',
+          rbi_dra_assignment: {
+            assigned_agency: 'Precision Field Collections Ltd (DRA Reg #9921)',
+            allocated_officer: 'Suresh Varma (Badge #DRA_774)',
+            visit_window_permitted: '09:00 - 18:00 IST',
+            body_cam_mandatory: true,
+            penal_charges_permitted: false,
+            gro_contact: '1800-120-130'
+          },
+          escalation_timestamp: new Date().toISOString()
+        });
+      } else {
+        setHitlDossier(null);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -633,13 +676,43 @@ export const App: React.FC = () => {
       </header>
 
       {/* ========================================================================= */}
+      {/* MOBILE VIEW TOGGLE: Only visible on mobile/tablet viewports (< lg) */}
+      {/* ========================================================================= */}
+      <div className="lg:hidden flex items-center justify-center p-2.5 bg-[#001D4D] border-b border-cyan-500/20 gap-2 sticky top-0 z-30 shadow-md">
+        <button
+          onClick={() => setMobileView('PHONE')}
+          className={`flex-1 max-w-[220px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+            mobileView === 'PHONE'
+              ? 'bg-[#00BAF2] text-[#001D4D] shadow-md font-black ring-2 ring-[#00BAF2]/50'
+              : 'bg-white/10 text-slate-300 hover:text-white'
+          }`}
+        >
+          <Smartphone className="h-4 w-4" />
+          <span>Merchant Phone</span>
+        </button>
+        <button
+          onClick={() => setMobileView('CONSOLE')}
+          className={`flex-1 max-w-[220px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+            mobileView === 'CONSOLE'
+              ? 'bg-[#00BAF2] text-[#001D4D] shadow-md font-black ring-2 ring-[#00BAF2]/50'
+              : 'bg-white/10 text-slate-300 hover:text-white'
+          }`}
+        >
+          <Sliders className="h-4 w-4" />
+          <span>Bank Console</span>
+        </button>
+      </div>
+
+      {/* ========================================================================= */}
       {/* MAIN VIEWPORT: SPLIT-SCREEN 2-COLUMN FINTECH STAGE */}
       {/* ========================================================================= */}
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0">
         {/* ======================================================================= */}
         {/* LEFT PANEL (7 Columns — Midnight Fintech Aesthetic — Mascot & Backend X-Ray) */}
         {/* ======================================================================= */}
-        <section className="lg:col-span-7 bg-gradient-to-b from-[#001D4D] via-[#00245E] to-[#001633] p-5 md:p-6 space-y-5 border-r border-white/10 shadow-2xl overflow-y-auto relative">
+        <section className={`lg:col-span-7 bg-gradient-to-b from-[#001D4D] via-[#00245E] to-[#001633] p-5 md:p-6 space-y-5 border-r border-white/10 shadow-2xl overflow-y-auto relative ${
+          mobileView === 'CONSOLE' ? 'block' : 'hidden lg:block'
+        }`}>
           {/* Subtle Ambient Radial Glow */}
           <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#00BAF2]/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -697,7 +770,9 @@ export const App: React.FC = () => {
         {/* RIGHT PANEL (5 Columns — Crisp Pure White #FFFFFF — Hardware & Phone) */}
         {/* ======================================================================= */}
         <section
-          className="lg:col-span-5 bg-white p-4 md:p-6 flex flex-col justify-between items-center relative overflow-y-auto min-h-[820px]"
+          className={`lg:col-span-5 bg-white p-4 md:p-6 flex flex-col justify-between items-center relative overflow-y-auto min-h-[820px] ${
+            mobileView === 'PHONE' ? 'flex' : 'hidden lg:flex'
+          }`}
           style={{
             backgroundImage: `radial-gradient(#CBD5E1 1.2px, transparent 1.2px)`,
             backgroundSize: '20px 20px',
