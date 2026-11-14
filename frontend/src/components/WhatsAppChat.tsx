@@ -61,12 +61,14 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
   const [outgoingMessages, setOutgoingMessages] = useState<OutgoingMessage[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const chatBottomRef = useRef<HTMLDivElement | null>(null);
+  const chatScrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Scroll to bottom on new message
+  // Scroll ONLY the internal chat container when user sends a message, never scroll the window
   useEffect(() => {
-    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessage, outgoingMessages, kfsDocument]);
+    if (outgoingMessages.length > 0 && chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [outgoingMessages]);
 
   // Formulate pure, authentic text for all 3 languages without jarring leftover English words
   const getLocalizedMessageText = (): string => {
@@ -335,6 +337,7 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
       {/* 2. CHAT CANVAS WITH WHATSAPP DOODLE WALLPAPER (#EFEAE2) */}
       {/* ========================================================================= */}
       <div
+        ref={chatScrollRef}
         className="flex-1 space-y-3 overflow-y-auto p-4 relative"
         style={{
           backgroundColor: '#EFEAE2',
@@ -495,8 +498,6 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
             <KFSMandateCard kfs={kfsDocument} />
           </div>
         )}
-
-        <div ref={chatBottomRef} />
       </div>
 
       {/* ========================================================================= */}
