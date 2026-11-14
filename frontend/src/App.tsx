@@ -188,13 +188,31 @@ export const App: React.FC = () => {
     }
   };
 
-  const playVoice = (textOverride?: string) => {
+  const playVoice = (textOverride?: string, langCodeOverride?: string) => {
     if (isPlayingAudio) {
       if (audioRef.current) {
         audioRef.current.pause();
       }
       window.speechSynthesis?.cancel();
       setIsPlayingAudio(false);
+      return;
+    }
+
+    if (textOverride && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(textOverride);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.lang =
+        langCodeOverride ||
+        (currentMerchant?.preferred_language === 'Telugu'
+          ? 'te-IN'
+          : currentMerchant?.preferred_language === 'Hinglish'
+          ? 'hi-IN'
+          : 'en-IN');
+      setIsPlayingAudio(true);
+      utterance.onend = () => setIsPlayingAudio(false);
+      utterance.onerror = () => setIsPlayingAudio(false);
+      window.speechSynthesis.speak(utterance);
       return;
     }
 
@@ -211,7 +229,6 @@ export const App: React.FC = () => {
 
     if ('speechSynthesis' in window) {
       const textToSpeak =
-        textOverride ||
         chatMessage?.tts_native_text ||
         chatMessage?.display_text ||
         'Paytm Recovery Copilot restructuring active.';
@@ -430,9 +447,10 @@ export const App: React.FC = () => {
                     currentEdi={currentLoan.current_daily_edi}
                     stepDownEdi={currentLoan.min_allowed_edi}
                     audioText={chatMessage?.display_text || chatMessage?.tts_native_text}
+                    chatMessage={chatMessage}
                     isPlayingAudio={isPlayingAudio}
                     onDoubleTapConfirm={handleDoubleTapSoundbox}
-                    onPlayAudio={() => playVoice()}
+                    onPlayAudio={(text, lang) => playVoice(text, lang)}
                     isRestructured={isCured}
                   />
                 </div>
@@ -560,9 +578,10 @@ export const App: React.FC = () => {
                   currentEdi={currentLoan?.current_daily_edi || 500}
                   stepDownEdi={currentLoan?.min_allowed_edi || 150}
                   audioText={chatMessage?.display_text || chatMessage?.tts_native_text}
+                  chatMessage={chatMessage}
                   isPlayingAudio={isPlayingAudio}
                   onDoubleTapConfirm={handleDoubleTapSoundbox}
-                  onPlayAudio={() => playVoice()}
+                  onPlayAudio={(text, lang) => playVoice(text, lang)}
                   isRestructured={isCured}
                 />
 

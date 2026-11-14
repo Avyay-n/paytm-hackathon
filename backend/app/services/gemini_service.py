@@ -52,8 +52,9 @@ async def generate_recovery_message(
         f"सहायता एवं शिकायत निवारण: नोडल अधिकारी राजेश नायर | टोल-फ्री: 1800-120-9981."
     )
 
+    nbfc_clean = nbfc_partner.replace('(Regulated Entity)', '').strip()
     english_text = (
-        f"Hello {merchant_name}, this is Paytm Recovery Copilot on behalf of {nbfc_partner} (Regulated Entity).\n\n"
+        f"Hello {merchant_name}, this is Paytm Recovery Copilot on behalf of {nbfc_clean} (Regulated Entity).\n\n"
         f"Our telemetry identified a {drop_pct:.0f}% settlement dip in Pin Code {pin_code} ({city}) due to {macro_headline}. "
         f"Over {peer_cluster_affected_pct:.0f}% of nearby Paytm merchants in your 300m cluster experienced this verified regional shock.\n\n"
         f"To protect your cash flow and keep your loan account healthy (preventing SMA-0 from slipping):\n"

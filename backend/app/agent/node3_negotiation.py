@@ -21,9 +21,10 @@ async def execute_node3(
     name_te = "రమేష్ కుమార్" if "Ramesh" in merchant.name else ("ప్రియా శర్మ" if "Priya" in merchant.name else "విక్రమ్ వర్మ")
     name_hi = "रमेश कुमार" if "Ramesh" in merchant.name else ("प्रिया शर्मा" if "Priya" in merchant.name else "विक्रम वर्मा")
 
+    nbfc_clean = (loan.lender_nbfc_partner or "SMFG India Credit").replace('(Regulated Entity)', '').strip()
     if classification == "HEALTHY_TECH_BOUNCE":
         english_text = (
-            f"Namaste {merchant.name} ji, this is Paytm Lending on behalf of {loan.lender_nbfc_partner} (Regulated Entity).\n\n"
+            f"Namaste {merchant.name} ji, this is Paytm Lending on behalf of {nbfc_clean} (Regulated Entity).\n\n"
             f"We noticed that your daily T+1 settlement sweep of ₹{int(loan.current_daily_edi)} was not completed "
             f"this morning due to an NPCI bank switch timeout. Your QR transaction velocity and Soundbox heartbeat remain healthy.\n\n"
             f"✓ ₹0.00 Bounce Penalty & ₹0.00 Penal Interest per RBI Digital Lending Guidelines.\n"
