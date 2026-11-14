@@ -209,9 +209,9 @@ export const PaytmSoundboxMini: React.FC<PaytmSoundboxMiniProps> = ({
       <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
         <div className="flex items-center gap-2">
           <img
-            src="/paytm-lsp-badge.png"
-            alt="Paytm Soundbox"
-            className="h-6 w-auto object-contain rounded"
+            src="/paytm-circle-logo.png"
+            alt="Paytm"
+            className="h-7 w-7 object-contain rounded-full bg-white p-0.5 border border-white/20 shadow-xs"
           />
           <div>
             <span className="font-mono text-xs font-bold text-white block">

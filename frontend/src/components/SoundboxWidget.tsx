@@ -138,9 +138,9 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
             <img
-              src="/paytm-lsp-badge.png"
-              alt="Paytm Soundbox"
-              className="h-7 w-auto object-contain rounded"
+              src="/paytm-circle-logo.png"
+              alt="Paytm"
+              className="h-8 w-8 object-contain rounded-full shadow-xs bg-white p-0.5 border border-slate-200"
             />
             <div>
               <span className="font-mono text-xs text-slate-800 font-bold block">

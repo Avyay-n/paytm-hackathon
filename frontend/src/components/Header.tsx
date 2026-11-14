@@ -30,12 +30,6 @@ export const Header: React.FC<HeaderProps> = ({
             alt="Paytm Logo"
             className="h-9 w-9 object-contain rounded-full shadow-xs border border-slate-200 bg-white"
           />
-          {/* Paytm LSP Badge */}
-          <img
-            src="/paytm-lsp-badge.png"
-            alt="Paytm LSP"
-            className="h-8 w-auto object-contain rounded"
-          />
         </div>
 
         <div className="border-l border-slate-200 pl-3">

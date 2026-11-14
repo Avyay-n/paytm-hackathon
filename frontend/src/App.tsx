@@ -508,14 +508,14 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[#001433] text-slate-100 flex flex-col justify-between selection:bg-[#00BAF2] selection:text-[#002970]">
       {/* ========================================================================= */}
-      {/* TOP HEADER: PAYTM RECOVERY COPILOT & SYSTEM HEALTH BAR */}
+      {/* TOP HEADER: PAYTM RECOVERY COPILOT */}
       {/* ========================================================================= */}
       <header className="bg-[#001D4D] border-b border-cyan-500/20 px-4 md:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-md z-30">
         <div className="flex items-center gap-3">
           <img
-            src="/paytm-lsp-badge.png"
+            src="/paytm-circle-logo.png"
             alt="Paytm"
-            className="h-7 w-auto object-contain rounded"
+            className="h-8 w-8 object-contain rounded-full shadow-xs bg-white p-0.5 border border-white/20"
           />
           <div>
             <div className="flex items-center gap-2">
@@ -532,27 +532,12 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Live System Guardrail Badges */}
+        {/* Action Controls */}
         <div className="flex items-center gap-2 text-[11px] font-bold">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Sarvam Bulbul v4 Active</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
-            <span className="h-2 w-2 rounded-full bg-[#00BAF2]" />
-            <span>Gemini 2.5 Flash</span>
-          </div>
-
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
-            <ShieldCheck className="h-3 w-3" />
-            <span>100% RBI Fair Practices</span>
-          </div>
-
           <button
             onClick={handleResetSystem}
             title="Reset DB to pristine archetype state"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white border border-white/20 transition-all ml-1 text-xs font-bold"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white border border-white/20 transition-all text-xs font-bold"
           >
             <RefreshCw className={`h-3 w-3 ${isProcessing ? 'animate-spin' : ''}`} />
             <span>Reset Demo</span>

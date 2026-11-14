@@ -23,6 +23,7 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
   const getNarration = () => {
     if (currentScenario === 'NIGHT_BLOCK') {
       return {
+        persona: 'Night Compliance Check — Demonstrates statutory borrower protection. Outreach is strictly prohibited between 19:00 and 08:00 IST under RBI Fair Practices Code.',
         phoneState: 'Merchant phone is silent — zero automated calls or WhatsApp messages sent.',
         backendState: 'Node 2 (RBI Fair Practices) blocked outreach at 21:30 IST. Logged queue action for 08:05 AM tomorrow.',
         nextAction: 'Slide the IST Clock slider back between 08:00–19:00 IST to resume active daytime recovery.',
@@ -35,6 +36,7 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
     if (currentScenario === 'PRIYA') {
       if (currentStepIndex === 0) {
         return {
+          persona: 'Priya Sharma (Priya Handloom Textiles, Jaipur • Healthy Flow) — High-volume merchant with ₹6,800/day steady sales. Missed 1 EMI due to transient bank webhook timeout, not distress.',
           phoneState: 'Priya received a notification for 1 missed ₹400 daily EDI due to a transient bank server timeout.',
           backendState: 'Node 1 verified ₹6,800/day healthy revenue. Node 3 strictly prohibits haircuts for healthy businesses.',
           nextAction: 'Click "Can you make it ₹50/day?" on phone to verify that the AI rejects unjustified discounts, or double-press Soundbox to retry ₹400.',
@@ -44,6 +46,7 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
         };
       }
       return {
+        persona: 'Priya Sharma (Priya Handloom Textiles, Jaipur • Healthy Flow) — High-volume merchant with ₹6,800/day steady sales. Missed 1 EMI due to transient bank webhook timeout, not distress.',
         phoneState: 'AI politely declined ₹50/day discount request, offering 1-click ₹400 retry to protect lender yield.',
         backendState: 'Node 3 strictly enforced deterministic policy: Healthy volume (>₹5k/day) cannot receive EDI haircut.',
         nextAction: 'Double-press the Soundbox button on the right to retry the missed ₹400 sweep, or switch to Scenario 3.',
@@ -55,6 +58,7 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
 
     if (currentScenario === 'APEX') {
       return {
+        persona: 'Vikram Verma (Apex Electronics, Bangalore • 25d Dormant) — Abandoned account with zero transactions for 25 days and offline Soundbox. Disables AI restructuring and escalates to human recovery.',
         phoneState: 'No automated loan concession offered. Merchant phone shows formal statutory compliance notice.',
         backendState: 'Node 1 detected 25 days of zero UPI volume + offline Soundbox. Immediately bypassed Node 3 and triggered Node 5 HITL.',
         nextAction: 'Inspect the generated AI Risk Dossier and allocated DRA field agent assignment in Node 5.',
@@ -67,6 +71,7 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
     // Default: RAMESH KIRANA
     if (currentStepIndex === 0) {
       return {
+        persona: 'Ramesh Kumar (Ramesh Kirana Store, Hyderabad • SMA-0 Distressed) — Honest micro-merchant hit by verified metro construction & monsoon flooding (-45% QR dip). Qualifies for temporary ₹150/day EDI relief.',
         phoneState: 'Ramesh receives an empathetic Hindi/Telugu WhatsApp message diagnosing his -45% monsoon sales dip.',
         backendState: 'Node 1 ingested 30d UPI data & correlated with Pin Code 500081 peer radar. Genuine localized shock confirmed.',
         nextAction: 'Tap "Haan, ₹150/day confirm kar do ✅" on phone OR double-press the Soundbox button to accept ₹150/day.',
@@ -76,6 +81,7 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
       };
     } else {
       return {
+        persona: 'Ramesh Kumar (Ramesh Kirana Store, Hyderabad • Rescued) — Successfully restructured to ₹150/day for 14 days with ₹0 penal charges. NPA cliff prevented.',
         phoneState: 'Ramesh agreed to restructure! Digital RBI Key Fact Statement (KFS) & UPI AutoPay Mandate link delivered.',
         backendState: 'Node 4 executed ACID transaction: SQL loan ledger updated ₹500 ➔ ₹150/day, ₹0 penal interest guaranteed.',
         nextAction: 'Inspect the flashing green row in the SQL database table below, or test Scenario 2.',
@@ -218,8 +224,16 @@ export const MascotNarrator: React.FC<MascotNarratorProps> = ({
           </span>
         </div>
 
-        {/* 3 Clear Narrative Rows */}
+        {/* Narrative Rows */}
         <div className="space-y-2.5 text-xs">
+          {/* Row 0: User Persona */}
+          <div className="flex items-start gap-2.5 pb-2 border-b border-white/5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-300 bg-teal-500/15 border border-teal-400/30 px-2 py-0.5 rounded-md shrink-0">
+              User Persona
+            </span>
+            <p className="text-teal-100 leading-relaxed font-medium">{narration.persona}</p>
+          </div>
+
           {/* Row 1: Phone UI */}
           <div className="flex items-start gap-2.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 bg-blue-500/15 border border-blue-400/30 px-2 py-0.5 rounded-md shrink-0">
