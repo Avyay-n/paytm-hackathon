@@ -87,6 +87,18 @@ export async function fetchAuditLogs(merchantId: string): Promise<AgentAuditLog[
   return res.json();
 }
 
+export async function fetchLoans(): Promise<Loan[]> {
+  const res = await fetch(`${API_BASE}/loans`);
+  if (!res.ok) throw new Error('Failed to fetch loans');
+  return res.json();
+}
+
+export async function fetchAllAuditLogs(): Promise<AgentAuditLog[]> {
+  const res = await fetch(`${API_BASE}/all-audit-logs`);
+  if (!res.ok) throw new Error('Failed to fetch all audit logs');
+  return res.json();
+}
+
 export async function resetDatabase(): Promise<{ status: string; message: string }> {
   const res = await fetch(`${API_BASE}/reset`, { method: 'POST' });
   return res.json();

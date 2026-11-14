@@ -52,6 +52,16 @@ def list_merchants(db: Session = Depends(get_db)):
     merchants = db.query(Merchant).all()
     return merchants
 
+@app.get("/api/loans", response_model=List[LoanSchema])
+def list_loans(db: Session = Depends(get_db)):
+    loans = db.query(Loan).all()
+    return loans
+
+@app.get("/api/all-audit-logs", response_model=List[AgentAuditLogSchema])
+def list_all_audit_logs(db: Session = Depends(get_db)):
+    logs = db.query(AgentAuditLog).order_by(AgentAuditLog.created_at.desc()).limit(30).all()
+    return logs
+
 @app.get("/api/merchants/{merchant_id}")
 def get_merchant(merchant_id: str, db: Session = Depends(get_db)):
     merchant = db.query(Merchant).filter(Merchant.id == merchant_id).first()

@@ -132,47 +132,53 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
   const isOnline = heartbeatPct > 50;
 
   return (
-    <div className="rounded-xl border-2 border-sky-200 bg-gradient-to-br from-sky-50/90 via-blue-50/40 to-white p-4 shadow-sm">
-      {/* Top Header with Image 2 Logo */}
-      <div className="flex items-center justify-between border-b border-blue-100/80 pb-3">
-        <div className="flex items-center gap-2">
-          <img
-            src="/paytm-lsp-badge.png"
-            alt="Paytm Soundbox"
-            className="h-6 w-auto object-contain rounded"
-          />
-          <span className="font-mono text-xs text-slate-600 font-bold">Soundbox 4.0 • {deviceId}</span>
-        </div>
-
-        {/* Heartbeat Status */}
-        <div className="flex items-center gap-1.5">
-          <span className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-[#00BAF2] animate-pulse' : 'bg-slate-400'}`} />
-          <span className={`text-xs font-bold ${isOnline ? 'text-[#002970]' : 'text-slate-500'}`}>
-            {isOnline ? `${heartbeatPct}% Uptime` : 'Offline'}
-          </span>
-        </div>
-      </div>
-
-      {/* Center Soundbox Voice Bar */}
-      <div className="my-3 rounded-lg bg-white/95 p-3.5 border border-blue-200 shadow-xs">
-        {/* Top bar with Rail Title, 3-Way Language Switcher, and Replay Voice Button */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-blue-100/80 pb-2.5 mb-2.5">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-[#002970] text-white shadow-xs">
-              <Radio className={`h-3.5 w-3.5 ${isPlayingAudio ? 'animate-bounce text-[#00BAF2]' : 'text-white'}`} />
+    <div className="rounded-2xl bg-white/90 backdrop-blur-xs p-6 shadow-xs border border-slate-200/80 flex flex-col justify-between min-h-[360px]">
+      {/* Device Identity Header */}
+      <div>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+          <div className="flex items-center gap-2.5">
+            <img
+              src="/paytm-lsp-badge.png"
+              alt="Paytm Soundbox"
+              className="h-7 w-auto object-contain rounded"
+            />
+            <div>
+              <span className="font-mono text-xs text-slate-800 font-bold block">
+                Paytm Soundbox 4.0 • {deviceId}
+              </span>
+              <span className="text-[11px] text-slate-500">2-Way Interactive Hardware Recovery Rail</span>
             </div>
-            <span className="text-[11px] font-bold text-[#002970] flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-[#00BAF2]" />
-              Sarvam AI Voice Rail
+          </div>
+
+          {/* Heartbeat Status */}
+          <div className="flex items-center gap-2 bg-blue-50/80 px-3 py-1 rounded-full border border-blue-200">
+            <span className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-[#00BAF2] animate-pulse' : 'bg-slate-400'}`} />
+            <span className={`text-xs font-bold ${isOnline ? 'text-[#002970]' : 'text-slate-500'}`}>
+              {isOnline ? `${heartbeatPct}% Uptime` : 'Offline'}
             </span>
+          </div>
+        </div>
+
+        {/* Voice Rail Action & Language Switcher */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#002970] text-white shadow-xs">
+              <Radio className={`h-4 w-4 ${isPlayingAudio ? 'animate-bounce text-[#00BAF2]' : 'text-white'}`} />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-[#002970] flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-[#00BAF2]" />
+                Sarvam AI Indic Voice Rail
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 3-Way Language Toggle: English | Telugu | Hindi */}
-            <div className="flex items-center bg-slate-100 rounded-full p-0.5 border border-slate-200">
+            {/* 3-Way Language Toggle */}
+            <div className="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 shadow-2xs">
               <button
                 onClick={() => setSelectedLang('en')}
-                className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition-all ${
+                className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all ${
                   selectedLang === 'en'
                     ? 'bg-[#002970] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -183,7 +189,7 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
               </button>
               <button
                 onClick={() => setSelectedLang('te')}
-                className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition-all ${
+                className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all ${
                   selectedLang === 'te'
                     ? 'bg-[#002970] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -194,7 +200,7 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
               </button>
               <button
                 onClick={() => setSelectedLang('hi')}
-                className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition-all ${
+                className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all ${
                   selectedLang === 'hi'
                     ? 'bg-[#002970] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -208,62 +214,64 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
             {/* Replay Voice button */}
             <button
               onClick={handlePlayVoice}
-              className="flex items-center gap-1 rounded bg-[#002970] hover:bg-[#003B95] text-white px-2.5 py-1 text-[11px] font-bold transition-colors shadow-xs active:scale-95"
+              className="flex items-center gap-1.5 rounded-lg bg-[#002970] hover:bg-[#003B95] text-white px-3 py-1.5 text-xs font-bold transition-all shadow-xs active:scale-95"
             >
-              {isPlayingAudio ? <RotateCcw className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+              {isPlayingAudio ? <RotateCcw className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
               <span>{isPlayingAudio ? 'Playing' : 'Replay Voice'}</span>
             </button>
           </div>
         </div>
 
-        {/* Full Unclipped Voice Announcement Text */}
-        <p className="text-xs text-slate-700 italic leading-relaxed whitespace-pre-line select-text">
-          "{getLocalizedAudioText()}"
-        </p>
+        {/* Spacious Speech Text Box */}
+        <div className="bg-slate-50/90 rounded-xl p-4 border border-slate-200/80 my-3">
+          <p className="text-sm text-slate-800 leading-relaxed font-medium select-text italic">
+            "{getLocalizedAudioText()}"
+          </p>
 
-        {/* Clean Reactive Waveform in Paytm Blue */}
-        <div className="mt-2.5 flex items-center gap-1 h-3 pt-1 border-t border-slate-100">
-          {Array.from({ length: 28 }).map((_, i) => {
-            const heights = [3, 6, 12, 14, 10, 5, 8, 14, 12, 6, 10, 14, 8, 4, 12, 14, 10, 6, 3, 8];
-            const h = isPlayingAudio ? heights[i % heights.length] : 3;
-            return (
-              <div
-                key={i}
-                style={{ height: `${h}px` }}
-                className={`w-1 rounded-full transition-all duration-150 ${
-                  isPlayingAudio ? 'bg-[#00BAF2]' : 'bg-slate-300'
-                }`}
-              />
-            );
-          })}
+          {/* Clean Reactive Waveform in Paytm Blue */}
+          <div className="mt-3 flex items-center gap-1 h-3.5 pt-2 border-t border-slate-200/60">
+            {Array.from({ length: 32 }).map((_, i) => {
+              const heights = [3, 6, 12, 14, 10, 5, 8, 14, 12, 6, 10, 14, 8, 4, 12, 14, 10, 6, 3, 8];
+              const h = isPlayingAudio ? heights[i % heights.length] : 3;
+              return (
+                <div
+                  key={i}
+                  style={{ height: `${h}px` }}
+                  className={`w-1 rounded-full transition-all duration-150 ${
+                    isPlayingAudio ? 'bg-[#00BAF2]' : 'bg-slate-300'
+                  }`}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Double-Tap Hardware Confirmation Button in Paytm Deep Navy */}
-      <div>
+      {/* Double-Tap Hardware Confirmation Button */}
+      <div className="mt-4">
         <button
           onClick={handleButtonPress}
           disabled={!isOnline || isRestructured}
-          className={`w-full rounded-lg py-2.5 px-4 text-center font-bold text-xs transition-all shadow-sm ${
+          className={`w-full rounded-xl py-3.5 px-6 text-center font-bold text-sm transition-all shadow-sm ${
             isRestructured
-              ? 'bg-blue-50 text-[#002970] border border-blue-300 cursor-default'
+              ? 'bg-blue-50 text-[#002970] border-2 border-blue-300 cursor-default font-extrabold'
               : !isOnline
               ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
-              : 'bg-[#002970] hover:bg-[#003B95] text-white active:scale-[0.99]'
+              : 'bg-[#002970] hover:bg-[#003B95] text-white shadow-md hover:shadow-lg active:scale-[0.99]'
           }`}
         >
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2.5">
             {isRestructured ? (
               <>
-                <CheckCircle className="h-4 w-4 text-[#00BAF2]" />
-                <span>Restructuring Active (₹{stepDownEdi}/day Committed)</span>
+                <CheckCircle className="h-5 w-5 text-[#00BAF2]" />
+                <span className="tracking-wide">✓ Restructuring Active (₹{stepDownEdi}/day Committed to Database)</span>
               </>
             ) : (
               <>
-                <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#00BAF2] text-[9px] text-[#002970] font-black">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#00BAF2] text-[10px] text-[#002970] font-black">
                   {tapCount > 0 ? '2' : '🔘'}
                 </span>
-                <span>
+                <span className="tracking-wide">
                   {tapCount > 0
                     ? `Click Once More to Confirm ₹${stepDownEdi}/day Plan!`
                     : `Double-Tap Soundbox Button: Accept ₹${stepDownEdi}/day Plan`}
@@ -274,7 +282,7 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
         </button>
 
         {buttonFeedback && (
-          <p className="mt-1.5 text-center font-mono text-xs text-[#002970] font-semibold animate-pulse">
+          <p className="mt-2 text-center font-mono text-xs text-[#002970] font-bold animate-pulse">
             {buttonFeedback}
           </p>
         )}
