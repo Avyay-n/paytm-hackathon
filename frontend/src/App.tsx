@@ -428,7 +428,7 @@ export const App: React.FC = () => {
             }`}
           >
             <LayoutDashboard className="h-4 w-4" />
-            <span>1. Executive Overview & KPIs</span>
+            <span>1. Executive Overview</span>
           </button>
 
           <button
@@ -469,93 +469,10 @@ export const App: React.FC = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* TAB 1: EXECUTIVE OVERVIEW & KPIS */}
+        {/* TAB 1: EXECUTIVE OVERVIEW */}
         {/* ========================================================================= */}
         {activeTab === 'OVERVIEW' && (
           <div className="space-y-6">
-            {/* 4 Clean Metric Cards */}
-            <div>
-              <div className="mb-3">
-                <h3 className="text-sm font-bold text-[#002970]">Lender Portfolio Recovery Metrics</h3>
-                <p className="text-xs text-slate-500">Autonomous recovery metrics across the active Paytm lending cohort</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <SpotlightCard className="p-4 bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white border-2 border-emerald-200/90 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold text-emerald-800 tracking-wider">
-                      Recovered Cash Flow
-                    </span>
-                    <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800">
-                      <TrendingUp className="h-4 w-4" />
-                    </div>
-                  </div>
-                  <div className="mt-2 text-2xl font-extrabold text-emerald-900">
-                    <AnimatedCounter
-                      value={isCured ? 430000 : 385000}
-                      isCurrency={true}
-                      prefix="₹"
-                      duration={1000}
-                    />
-                  </div>
-                  <span className="text-xs text-emerald-700 font-bold mt-0.5 block">
-                    +₹45,000 Restructured Today
-                  </span>
-                </SpotlightCard>
-
-                <SpotlightCard className="p-4 bg-gradient-to-br from-blue-50 via-sky-50/40 to-white border-2 border-blue-200/90 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold text-[#002970] tracking-wider">
-                      SMA-0 &rarr; NPA Cured
-                    </span>
-                    <div className="p-1.5 rounded-lg bg-blue-100 text-[#002970]">
-                      <CheckCircle2 className="h-4 w-4" />
-                    </div>
-                  </div>
-                  <div className="mt-2 text-2xl font-extrabold text-[#002970]">
-                    <AnimatedCounter value={isCured ? 7 : 6} suffix=" Merchants" duration={800} />
-                  </div>
-                  <span className="text-xs text-blue-800 font-bold mt-0.5 block">
-                    Zero Defaults Recorded
-                  </span>
-                </SpotlightCard>
-
-                <SpotlightCard className="p-4 bg-gradient-to-br from-indigo-50 via-purple-50/40 to-white border-2 border-indigo-200/90 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold text-indigo-800 tracking-wider">
-                      Autonomous Restructure
-                    </span>
-                    <div className="p-1.5 rounded-lg bg-indigo-100 text-indigo-800">
-                      <Zap className="h-4 w-4" />
-                    </div>
-                  </div>
-                  <div className="mt-2 text-2xl font-extrabold text-indigo-900">
-                    <AnimatedCounter value={88.4} decimals={1} suffix="%" duration={1000} />
-                  </div>
-                  <span className="text-xs text-indigo-700 font-bold mt-0.5 block">
-                    Zero Human Tele-calls
-                  </span>
-                </SpotlightCard>
-
-                <SpotlightCard className="p-4 bg-gradient-to-br from-amber-50 via-yellow-50/40 to-white border-2 border-amber-200/90 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold text-amber-800 tracking-wider">
-                      RBI Compliance Rate
-                    </span>
-                    <div className="p-1.5 rounded-lg bg-amber-100 text-amber-800">
-                      <ShieldCheck className="h-4 w-4" />
-                    </div>
-                  </div>
-                  <div className="mt-2 text-2xl font-extrabold text-amber-900">
-                    <AnimatedCounter value={100} suffix="%" duration={600} />
-                  </div>
-                  <span className="text-xs text-amber-800 font-bold mt-0.5 block">
-                    100% Audit Adherence
-                  </span>
-                </SpotlightCard>
-              </div>
-            </div>
-
             {/* Quick Action & Soundbox Trigger Card */}
             {currentMerchant && currentLoan && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
