@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Activity,
   Shield,
@@ -62,6 +63,18 @@ export const PipelineVisualizer: React.FC<PipelineVisualizerProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    if (activeModalNode !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeModalNode]);
 
   // Determine processing/status state for each node
   const getNodeStatus = (nodeId: number) => {
@@ -336,19 +349,20 @@ export const PipelineVisualizer: React.FC<PipelineVisualizerProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* EXPANDED CENTER-SCREEN MODAL DIALOG                                       */}
+      {/* EXPANDED CENTER-SCREEN MODAL DIALOG (MOUNTED TO BODY VIA PORTAL)          */}
       {/* ========================================================================= */}
-      {activeModalNode !== null && (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setActiveModalNode(null);
-            }
-          }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
-        >
-          <div className="w-full max-w-xl rounded-2xl bg-gradient-to-b from-[#0A224E] via-[#071838] to-[#001433] border border-cyan-400/40 p-6 shadow-[0_0_50px_rgba(0,186,242,0.25)] text-left space-y-5 relative">
-            {/* Modal Header */}
+      {activeModalNode !== null && typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setActiveModalNode(null);
+              }
+            }}
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          >
+            <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-gradient-to-b from-[#0A224E] via-[#071838] to-[#001433] border border-cyan-400/50 p-6 shadow-[0_0_60px_rgba(0,186,242,0.35)] text-left space-y-5 relative">
+              {/* Modal Header */}
             <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-[#001433] border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-inner shrink-0">
@@ -621,7 +635,8 @@ export const PipelineVisualizer: React.FC<PipelineVisualizerProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

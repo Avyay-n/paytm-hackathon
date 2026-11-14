@@ -78,18 +78,6 @@ export const App: React.FC = () => {
       .trim();
   };
 
-  // Stops any playing audio immediately (Pause button functionality)
-  const handleStopVoice = () => {
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current.currentTime = 0;
-      currentAudioRef.current = null;
-    }
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    setIsSpeaking(false);
-  };
 
   // Initial Data Load
   const loadInitialData = async () => {
@@ -365,6 +353,26 @@ export const App: React.FC = () => {
     }
   };
 
+  // Keepalive interval reference for browser SpeechSynthesis
+  const keepAliveIntervalRef = useRef<any>(null);
+
+  // Stops any playing audio immediately (Pause button functionality)
+  const handleStopVoice = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    if (keepAliveIntervalRef.current) {
+      clearInterval(keepAliveIntervalRef.current);
+      keepAliveIntervalRef.current = null;
+    }
+    setIsSpeaking(false);
+  };
+
   // Voice playback with Sarvam AI Bulbul v4 and Pause/Stop support
   const handlePlayVoice = async (rawText?: string, langCode: string = 'te-IN') => {
     // If currently playing, clicking pause stops speech immediately
@@ -408,12 +416,17 @@ export const App: React.FC = () => {
       console.warn('Sarvam AI backend call failed, falling back to speech synthesis:', err);
     }
 
-    // 2. Fallback to window.speechSynthesis
+    // 2. Fallback to window.speechSynthesis with sentence chunking & keepalive
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.lang = langCode;
-      utterance.rate = 0.95;
+
+      // Split into clean sentence chunks to prevent Chromium's 15s cutoff bug
+      const sentences = cleanText
+        .split(/(?<=[.!?।])\s+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      const targetSentences = sentences.length > 0 ? sentences : [cleanText];
 
       const voices = window.speechSynthesis.getVoices();
       let chosenVoice: SpeechSynthesisVoice | undefined;
@@ -428,13 +441,51 @@ export const App: React.FC = () => {
         );
       }
 
-      if (chosenVoice) utterance.voice = chosenVoice;
+      let currentSentenceIdx = 0;
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      const speakNextSentence = () => {
+        if (currentSentenceIdx >= targetSentences.length) {
+          if (keepAliveIntervalRef.current) {
+            clearInterval(keepAliveIntervalRef.current);
+            keepAliveIntervalRef.current = null;
+          }
+          setIsSpeaking(false);
+          return;
+        }
 
-      window.speechSynthesis.speak(utterance);
+        const utterance = new SpeechSynthesisUtterance(targetSentences[currentSentenceIdx]);
+        utterance.lang = langCode;
+        utterance.rate = 0.95;
+        if (chosenVoice) utterance.voice = chosenVoice;
+
+        utterance.onend = () => {
+          currentSentenceIdx++;
+          speakNextSentence();
+        };
+
+        utterance.onerror = () => {
+          currentSentenceIdx++;
+          speakNextSentence();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      };
+
+      // Keepalive heartbeat to ensure long speech is never paused by Chrome
+      if (keepAliveIntervalRef.current) clearInterval(keepAliveIntervalRef.current);
+      keepAliveIntervalRef.current = setInterval(() => {
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        } else {
+          if (keepAliveIntervalRef.current) {
+            clearInterval(keepAliveIntervalRef.current);
+            keepAliveIntervalRef.current = null;
+          }
+        }
+      }, 5000);
+
+      speakNextSentence();
     } else {
       setIsSpeaking(false);
     }

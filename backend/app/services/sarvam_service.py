@@ -47,12 +47,13 @@ async def synthesize_speech(
     if client:
         try:
             lang = language_code if language_code in ["te-IN", "hi-IN", "en-IN"] else "hi-IN"
-            short_text = text[:180] # fast conversational prompt
+            # Ensure full complete sentence is passed without truncation
+            full_text = text[:500]
             
-            # Run blocking SDK in worker thread with 4s timeout
+            # Run blocking SDK in worker thread with 12s timeout for complete multi-sentence audio
             res = await asyncio.wait_for(
-                asyncio.to_thread(_sync_tts_convert, client, short_text, lang),
-                timeout=4.0
+                asyncio.to_thread(_sync_tts_convert, client, full_text, lang),
+                timeout=12.0
             )
             if res.audios and len(res.audios) > 0:
                 return {
