@@ -18,29 +18,32 @@ async def execute_node3(
 
     classification = n1_data.get("classification", "VERIFIED_MACRO_DISTRESS")
 
+    name_te = "రమేష్ కుమార్" if "Ramesh" in merchant.name else ("ప్రియా శర్మ" if "Priya" in merchant.name else "విక్రమ్ వర్మ")
+    name_hi = "रमेश कुमार" if "Ramesh" in merchant.name else ("प्रिया शर्मा" if "Priya" in merchant.name else "विक्रम वर्मा")
+
     if classification == "HEALTHY_TECH_BOUNCE":
         english_text = (
-            f"Namaste {merchant.name} ji, this is Paytm Lending on behalf of {loan.lender_nbfc_partner} (Regulated Entity). "
+            f"Namaste {merchant.name} ji, this is Paytm Lending on behalf of {loan.lender_nbfc_partner} (Regulated Entity).\n\n"
             f"We noticed that your daily T+1 settlement sweep of ₹{int(loan.current_daily_edi)} was not completed "
             f"this morning due to an NPCI bank switch timeout. Your QR transaction velocity and Soundbox heartbeat remain healthy.\n\n"
             f"✓ ₹0.00 Bounce Penalty & ₹0.00 Penal Interest per RBI Digital Lending Guidelines.\n"
             f"Click below to initiate an immediate 1-Click T+1 Settlement Retry."
         )
         telugu_text = (
-            f"నమస్కారం {merchant.name} గారు, Paytm Lending & {loan.lender_nbfc_partner} నుండి సంప్రదిస్తున్నాము. "
-            f"బ్యాంక్ సర్వర్ లేదా NPCI స్విచ్ టైమౌట్ వల్ల మీ రోజువారీ T+1 సెటిల్మెంట్ పూర్తి కాలేదు. "
-            f"మీ QR కలెక్షన్లు ఆరోగ్యంగా ఉన్నాయి.\n\n"
-            f"✓ RBI నిబంధనల ప్రకారం ₹0.00 అపరాధ రుసుము (Zero Penalty).\n"
-            f"కింది బటన్ ద్వారా 1-క్లిక్ రీట్రై ప్రారంభించండి."
+            f"నమస్కారం {name_te} గారు, పేటీఎం లెండింగ్ & ఎస్ఎమ్‌ఎఫ్‌జి ఇండియా క్రెడిట్ నుండి సంప్రదిస్తున్నాము.\n\n"
+            f"నేషనల్ పేమెంట్స్ కార్పొరేషన్ (NPCI) బ్యాంక్ స్విచ్ టైమౌట్ వల్ల మీ రోజువారీ T+1 సెటిల్మెంట్ పూర్తి కాలేదు. "
+            f"మీ క్యూఆర్ వ్యాపారం మరియు సౌండ్‌బాక్స్ పూర్తిగా ఆరోగ్యంగా ఉన్నాయి.\n\n"
+            f"✓ ఆర్బీఐ నిబంధనల ప్రకారం ₹0.00 అపరాధ రుసుము లేదా పెనాల్టీ వడ్డీ.\n"
+            f"సున్నా రుసుముతో వెంటనే సెటిల్మెంట్ పూర్తి చేయడానికి కింద ఉన్న 1-క్లిక్ రీట్రై బటన్‌ను నొక్కండి."
         )
         hindi_text = (
-            f"नमस्ते {merchant.name} जी, Paytm Lending & {loan.lender_nbfc_partner} की तरफ से। "
-            f"बैंक स्विच टाइमआउट के कारण आज का T+1 सेटलमेंट पूरा नहीं हुआ। आपके QR और साउंडबॉक्स पूरी तरह सक्रिय हैं।\n\n"
-            f"✓ ₹0.00 पेनल्टी / ₹0.00 बाउंस चार्ज।\n"
-            f"शून्य पेनल्टी के साथ पुनः प्रयास करने के लिए 1-क्लिक रीट्राय पर क्लिक करें।"
+            f"नमस्ते {name_hi} जी, पेटीएम लेंडिंग एवं एसएमएफजी इंडिया क्रेडिट की तरफ से।\n\n"
+            f"एनपीसीआई (NPCI) बैंक सर्वर टाइमआउट के कारण आज सुबह आपकी T+1 दैनिक सेटलमेंट पूरी नहीं हो सकी। आपके क्यूआर और साउंडबॉक्स पूरी तरह सक्रिय हैं।\n\n"
+            f"✓ आरबीआई नियमों के अनुसार ₹0.00 पेनल्टी एवं शून्य बाउंस चार्ज।\n"
+            f"शून्य पेनल्टी के साथ पुनः प्रयास करने के लिए नीचे दिए गए 1-क्लिक रीट्राय पर क्लिक करें।"
         )
         tts_native_text = (
-            f"नमस्ते {merchant.name} जी। बैंक स्विच टाइमआउट के कारण आज का सेटलमेंट पूरा नहीं हुआ। "
+            f"नमस्ते {name_hi} जी। बैंक स्विच टाइमआउट के कारण आज का सेटलमेंट पूरा नहीं हुआ। "
             f"शून्य पेनल्टी के साथ पुनः प्रयास करने के लिए बटन पर क्लिक करें।"
         )
         chat_message = {

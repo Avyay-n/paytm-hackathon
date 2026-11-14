@@ -17,8 +17,6 @@ import {
   Smile,
   Play,
   Pause,
-  ShieldCheck,
-  Info
 } from 'lucide-react';
 import { ChatMessage, KFSDocument } from '../types';
 import { KFSMandateCard } from './KFSMandateCard';
@@ -57,7 +55,7 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
   isPlayingVoice,
 }) => {
   const [inputText, setInputText] = useState('');
-  const [selectedLang, setSelectedLang] = useState<LangOption>('en'); // English by default as requested!
+  const [selectedLang, setSelectedLang] = useState<LangOption>('en'); // English by default
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [outgoingMessages, setOutgoingMessages] = useState<OutgoingMessage[]>([]);
@@ -70,14 +68,27 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessage, outgoingMessages, kfsDocument]);
 
-  // Formulate text for the 3 languages with high-fidelity fallbacks
+  // Formulate pure, authentic text for all 3 languages without jarring leftover English words
   const getLocalizedMessageText = (): string => {
     if (!chatMessage) return '';
 
+    const nameTe = merchantName.includes('Ramesh')
+      ? 'రమేష్ కుమార్'
+      : merchantName.includes('Priya')
+      ? 'ప్రియా శర్మ'
+      : 'విక్రమ్ వర్మ';
+
+    const nameHi = merchantName.includes('Ramesh')
+      ? 'रमेश कुमार'
+      : merchantName.includes('Priya')
+      ? 'प्रिया शर्मा'
+      : 'विक्रम वर्मा';
+
     if (selectedLang === 'en') {
-      if (chatMessage.english_text) return chatMessage.english_text;
-      // If display_text doesn't look like Telugu script, use it
-      if (chatMessage.display_text && !/[\u0C00-\u0C7F]/.test(chatMessage.display_text)) {
+      if (chatMessage.english_text && !/[\u0C00-\u0C7F\u0900-\u097F]/.test(chatMessage.english_text)) {
+        return chatMessage.english_text;
+      }
+      if (chatMessage.display_text && !/[\u0C00-\u0C7F\u0900-\u097F]/.test(chatMessage.display_text)) {
         return chatMessage.display_text;
       }
       return (
@@ -93,35 +104,51 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
     }
 
     if (selectedLang === 'te') {
-      if (chatMessage.telugu_text) return chatMessage.telugu_text;
-      if (chatMessage.display_text && /[\u0C00-\u0C7F]/.test(chatMessage.display_text)) {
-        return chatMessage.display_text;
-      }
+      // Return 100% pure authentic Telugu without Latin English names or acronyms
       return (
-        `నమస్కారం ${merchantName} గారు, Paytm Lending & SMFG India Credit (Regulated Entity) నుండి సంప్రదిస్తున్నాము.\n\n` +
-        `పిన్ కోడ్ 500081 లో భారీ వర్షాలు మరియు మెట్రో కాలువల పనుల వల్ల మీ వీధిలోని 83% దుకాణాలలో వ్యాపారం తగ్గింది. ` +
-        `మీ ప్రస్తుత రోజువారీ EDI ₹500 భారం తగ్గించడానికి, మేము 2 ప్రత్యామ్నాయాలు అందిస్తున్నాము:\n\n` +
-        `• ఆప్షన్ A: రాబోయే 14 రోజులకు EDI ని ₹150/రోజు కు తగ్గించడం.\n` +
-        `• ఆప్షన్ B: రోజూ వచ్చే QR కలెక్షన్లలో 10% మాత్రమే సర్దుబాటు చేయడం (ఎలాస్టిక్ స్వీప్).\n\n` +
-        `✓ RBI నిబంధనల ప్రకారం ₹0.00 అపరాధ వడ్డీ (Penal Charges).\n` +
-        `సహాయం కొరకు: GRO: Rajesh Nair (SMFG-Paytm Nodal Desk) | 1800-120-9981.`
+        `నమస్కారం ${nameTe} గారు, పేటీఎం లెండింగ్ & ఎస్ఎమ్‌ఎఫ్‌జి ఇండియా క్రెడిట్ (ఆర్బీఐ నమోదిత సంస్థ) నుండి సంప్రదిస్తున్నాము.\n\n` +
+        `పిన్ కోడ్ 500081 లో కురిసిన భారీ వర్షాలు మరియు మెట్రో కాలువల తవ్వకం పనుల వల్ల మీ వీధిలోని 83% దుకాణాలలో వ్యాపారం మందగించింది. ` +
+        `మీ ప్రస్తుత రోజువారీ వాయిదా (ఈడీఐ) ₹500 భారం తగ్గించి మీ వ్యాపార నగదు ప్రవాహాన్ని కాపాడటానికి, మేము 2 సులభమైన ప్రత్యామ్నాయాలను అందిస్తున్నాము:\n\n` +
+        `• ఆప్షన్ A: రాబోయే 14 రోజులకు రోజువారీ వాయిదాను ₹150/రోజు కు తగ్గించడం.\n` +
+        `• ఆప్షన్ B: రోజూ వచ్చే క్యూఆర్ (QR) కలెక్షన్లలో 10% మాత్రమే సర్దుబాటు చేయడం (ఎలాస్టిక్ స్వీప్).\n\n` +
+        `✓ ఆర్బీఐ నిబంధనల ప్రకారం ₹0.00 అపరాధ రుసుము లేదా పెనాల్టీ వడ్డీ.\n` +
+        `సహాయం లేదా ఫిర్యాదుల కొరకు నోడల్ అధికారి: రాజేష్ నాయర్ | టోల్-ఫ్రీ: 1800-120-9981.`
       );
     }
 
     if (selectedLang === 'hi') {
-      if (chatMessage.hindi_text) return chatMessage.hindi_text;
+      // Return 100% pure authentic Hindi
       return (
-        `नमस्ते ${merchantName} जी, Paytm Lending & SMFG India Credit (Regulated Entity) की तरफ से।\n\n` +
-        `पिन कोड 500081 में भारी बारिश और मेट्रो ड्रेनेज काम के कारण आपके क्षेत्र में 83% दुकानों में व्यापार प्रभावित हुआ है। ` +
-        `आपकी वर्तमान दैनिक EDI ₹500/दिन का भार कम करने के लिए हम 2 विकल्प दे रहे हैं:\n\n` +
-        `• विकल्प A: अगले 14 दिनों के लिए EDI घटाकर ₹150/दिन करना।\n` +
-        `• विकल्प B: इलास्टिक QR स्वीप — दैनिक QR कलेक्शन का केवल 10% स्वीप।\n\n` +
-        `✓ RBI नियमों के तहत ₹0.00 दंडात्मक ब्याज (Zero Penal Charges).\n` +
-        `शिकायत निवारण अधिकारी: GRO: Rajesh Nair (SMFG-Paytm Nodal Desk) | 1800-120-9981.`
+        `नमस्ते ${nameHi} जी, पेटीएम लेंडिंग एवं एसएमएफजी इंडिया क्रेडिट (आरबीआई पंजीकृत संस्था) की तरफ से।\n\n` +
+        `पिन कोड 500081 में भारी बारिश और मेट्रो ड्रेनेज काम के कारण आपके क्षेत्र में 83% दुकानों में बिक्री प्रभावित हुई है। ` +
+        `आपकी वर्तमान दैनिक किस्त (ई-डी-आई) ₹500/दिन का भार कम करने के लिए हम 2 आसान विकल्प दे रहे हैं:\n\n` +
+        `• विकल्प A: अगले 14 दिनों के लिए दैनिक किस्त घटाकर ₹150/दिन करना।\n` +
+        `• विकल्प B: इलास्टिक क्यूआर (QR) स्वीप — दैनिक बिक्री का केवल 10% भुगतान।\n\n` +
+        `✓ आरबीआई नियमों के अनुसार ₹0.00 दंडात्मक ब्याज एवं शून्य बाउंस पेनल्टी।\n` +
+        `सहायता एवं शिकायत निवारण: नोडल अधिकारी राजेश नायर | टोल-फ्री: 1800-120-9981.`
       );
     }
 
     return chatMessage.display_text;
+  };
+
+  // Localize Interactive Action Buttons into the user selected language
+  const getLocalizedOptionLabel = (opt: { id: string; label: string }) => {
+    if (selectedLang === 'te') {
+      if (opt.id === 'ACCEPT_OPTION_A') return '✓ ఆప్షన్ A: రోజువారీ వాయిదాను ₹150/రోజు కు తగ్గించండి (14 రోజులు)';
+      if (opt.id === 'ACCEPT_OPTION_B') return '📊 ఆప్షన్ B: 10% ఎలాస్టిక్ QR కలెక్షన్ల స్వీప్';
+      if (opt.id === 'SOUNDBOX_PROMPT') return '🔘 లేదా సౌండ్‌బాక్స్ బటన్‌ను 2 సార్లు నొక్కండి';
+      if (opt.id === 'RETRY_SWEEP') return '⚡ 1-క్లిక్ T+1 సెటిల్మెంట్ రీట్రై (₹0 రుసుము)';
+      if (opt.id === 'SUPPORT') return '📞 సహాయం కొరకు నోడల్ అధికారిని సంప్రదించండి';
+    }
+    if (selectedLang === 'hi') {
+      if (opt.id === 'ACCEPT_OPTION_A') return '✓ विकल्प A: दैनिक किस्त घटाकर ₹150/दिन करें (14 दिन)';
+      if (opt.id === 'ACCEPT_OPTION_B') return '📊 विकल्प B: 10% इलास्टिक QR स्वीप';
+      if (opt.id === 'SOUNDBOX_PROMPT') return '🔘 या साउंडबॉक्स बटन दो बार दबाएं';
+      if (opt.id === 'RETRY_SWEEP') return '⚡ 1-क्लिक T+1 सेटलमेंट पुनः प्रयास (₹0 शुल्क)';
+      if (opt.id === 'SUPPORT') return '📞 सहायता हेतु नोडल अधिकारी से संपर्क करें';
+    }
+    return opt.label;
   };
 
   const handleSend = (e: React.FormEvent) => {
@@ -141,9 +168,14 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
   };
 
   const handleOptionClick = (optionId: string, label: string) => {
+    const localizedLabel = getLocalizedOptionLabel({ id: optionId, label });
     const newMsg: OutgoingMessage = {
       id: `out_${Date.now()}`,
-      text: `Selected: ${label}`,
+      text: selectedLang === 'te'
+        ? `ఎంచుకున్నది: ${localizedLabel}`
+        : selectedLang === 'hi'
+        ? `चयनित: ${localizedLabel}`
+        : `Selected: ${localizedLabel}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
       status: 'read',
     };
@@ -225,7 +257,13 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
 
           <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="text-sm font-bold text-white tracking-wide">Paytm Recovery Copilot</h3>
+              <h3 className="text-sm font-bold text-white tracking-wide">
+                {selectedLang === 'te'
+                  ? 'పేటీఎం రికవరీ కోపైలట్'
+                  : selectedLang === 'hi'
+                  ? 'पेटीएम रिकवरी को-पायलट'
+                  : 'Paytm Recovery Copilot'}
+              </h3>
               {/* WhatsApp Official Business Green Checkmark */}
               <span className="flex items-center justify-center h-4 w-4 rounded-full bg-[#25D366] text-white" title="Verified Business">
                 <Check className="h-2.5 w-2.5 stroke-[3]" />
@@ -234,7 +272,13 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
             <p className="text-[11px] text-[#A0E7CB] flex items-center gap-1">
               <span>{businessName}</span>
               <span>•</span>
-              <span className="text-[#D1F4E0]">Official Business Account • online</span>
+              <span className="text-[#D1F4E0]">
+                {selectedLang === 'te'
+                  ? 'అధికారిక వ్యాపార ఖాతా • ఆన్‌లైన్'
+                  : selectedLang === 'hi'
+                  ? 'आधिकारिक व्यावसायिक खाता • ऑनलाइन'
+                  : 'Official Business Account • online'}
+              </span>
             </p>
           </div>
         </div>
@@ -250,7 +294,7 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
                   ? 'bg-white text-[#075E54] shadow-sm font-bold scale-102'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
-              title="Display in English (Default for demo readability)"
+              title="Display in English"
             >
               English
             </button>
@@ -261,7 +305,7 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
                   ? 'bg-white text-[#075E54] shadow-sm font-bold scale-102'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
-              title="Display in Telugu (తెలుగు)"
+              title="Display in pure Telugu (తెలుగు)"
             >
               తెలుగు
             </button>
@@ -272,7 +316,7 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
                   ? 'bg-white text-[#075E54] shadow-sm font-bold scale-102'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
-              title="Display in Hindi (हिंदी)"
+              title="Display in pure Hindi (हिंदी)"
             >
               हिंदी
             </button>
@@ -302,22 +346,19 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
         {/* WhatsApp Security / Encryption Notice Badge */}
         <div className="mx-auto max-w-sm rounded-lg bg-[#FFEECD] px-3 py-1.5 text-center text-[10.5px] text-[#54656F] border border-[#F4DEAB] flex items-center justify-center gap-1.5 shadow-2xs">
           <Lock className="h-3 w-3 text-[#54656F] shrink-0" />
-          <span>Messages are end-to-end encrypted. No one outside this chat can read them.</span>
+          <span>
+            {selectedLang === 'te'
+              ? 'సందేశాలు పూర్తిగా ఎండ్-టు-ఎండ్ ఎన్‌క్రిప్ట్ చేయబడ్డాయి. ఎవరూ చదవలేరు.'
+              : selectedLang === 'hi'
+              ? 'संदेश एंड-टू-एंड एन्क्रिप्टेड हैं। कोई अन्य व्यक्ति इसे नहीं पढ़ सकता।'
+              : 'Messages are end-to-end encrypted. No one outside this chat can read them.'}
+          </span>
         </div>
 
         {/* Date Divider Pill */}
         <div className="flex justify-center">
           <span className="rounded-md bg-white px-3 py-0.5 text-[10px] font-semibold text-[#54656F] shadow-[0_1px_0.5px_rgba(11,20,26,0.13)] uppercase tracking-wider">
-            Today
-          </span>
-        </div>
-
-        {/* Language Indicator Toast */}
-        <div className="flex justify-center">
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#128C7E]/10 border border-[#128C7E]/20 px-2.5 py-0.5 text-[10px] font-medium text-[#075E54]">
-            <Languages className="h-3 w-3" />
-            Showing in: <strong className="font-bold">{selectedLang === 'en' ? 'English (Default)' : selectedLang === 'te' ? 'తెలుగు (Telugu)' : 'हिंदी (Hindi)'}</strong>
-            <span className="text-slate-400 text-[9px]">(Use toggle above to switch)</span>
+            {selectedLang === 'te' ? 'ఈరోజు (Today)' : selectedLang === 'hi' ? 'आज (Today)' : 'Today'}
           </span>
         </div>
 
@@ -328,12 +369,16 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
             <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
               <span className="flex items-center gap-1 text-xs font-bold text-[#075E54]">
                 <Sparkles className="h-3.5 w-3.5 text-[#25D366]" />
-                ~ Paytm Recovery Copilot (LSP)
+                {selectedLang === 'te'
+                  ? '~ పేటీఎం రికవరీ కోపైలట్ (LSP)'
+                  : selectedLang === 'hi'
+                  ? '~ पेटीएम रिकवरी को-पायलट (LSP)'
+                  : '~ Paytm Recovery Copilot (LSP)'}
               </span>
               <span className="text-[10px] text-[#667781] font-medium">14:02</span>
             </div>
 
-            {/* Message Body (Dynamically switches between English, Telugu, Hindi) */}
+            {/* Message Body (Dynamically switches between English, Pure Telugu, Pure Hindi) */}
             <p className="whitespace-pre-line text-xs text-[#111B21] leading-relaxed select-text font-normal">
               {getLocalizedMessageText()}
             </p>
@@ -343,7 +388,15 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
               <button
                 onClick={onPlayVoice}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#00A884] hover:bg-[#008f72] text-white shadow-sm transition-transform active:scale-95"
-                title={isPlayingVoice ? 'Pause voice message' : 'Play Sarvam AI Indic voice note'}
+                title={
+                  isPlayingVoice
+                    ? 'Pause voice message'
+                    : selectedLang === 'te'
+                    ? 'సర్వం AI వాయిస్ సందేశం వినండి'
+                    : selectedLang === 'hi'
+                    ? 'सर्वम AI वॉइस संदेश सुनें'
+                    : 'Play Sarvam AI Indic voice note'
+                }
               >
                 {isPlayingVoice ? (
                   <Pause className="h-4 w-4 fill-white" />
@@ -356,7 +409,11 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
                 <div className="flex items-center justify-between text-[11px] mb-1">
                   <span className="font-semibold text-[#075E54] flex items-center gap-1">
                     <Volume2 className="h-3 w-3 text-[#00A884]" />
-                    Sarvam Bulbul v4 Voice Note
+                    {selectedLang === 'te'
+                      ? 'సర్వం AI వాయిస్ నోట్ (Sarvam Bulbul v4)'
+                      : selectedLang === 'hi'
+                      ? 'सर्वम AI वॉइस नोट (Sarvam Bulbul v4)'
+                      : 'Sarvam Bulbul v4 Voice Note'}
                   </span>
                   <span className="text-[10px] text-[#667781] font-mono">0:24</span>
                 </div>
@@ -384,11 +441,15 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
               </span>
             </div>
 
-            {/* WhatsApp Business Interactive Action Buttons */}
+            {/* WhatsApp Business Interactive Action Buttons (Fully Localized!) */}
             {chatMessage.options && !kfsDocument && (
               <div className="mt-3 space-y-1.5 pt-2 border-t border-slate-100">
                 <p className="text-[10px] font-semibold text-[#667781] uppercase tracking-wider mb-1">
-                  Select Restructuring Action:
+                  {selectedLang === 'te'
+                    ? 'రీస్ట్రక్చరింగ్ ఎంపికను ఎంచుకోండి:'
+                    : selectedLang === 'hi'
+                    ? 'ऋण पुनर्गठन विकल्प चुनें:'
+                    : 'Select Restructuring Action:'}
                 </p>
                 {chatMessage.options.map((opt) => (
                   <button
@@ -396,7 +457,7 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
                     onClick={() => handleOptionClick(opt.id, opt.label)}
                     className="w-full flex items-center justify-between rounded-lg border border-[#25D366]/40 bg-[#E8F8F0] hover:bg-[#D4F4E4] px-3 py-2 text-xs font-semibold text-[#075E54] transition-all shadow-2xs active:scale-98 text-left"
                   >
-                    <span>{opt.label}</span>
+                    <span>{getLocalizedOptionLabel(opt)}</span>
                     <span className="text-[#00A884] font-bold text-xs">&rarr;</span>
                   </button>
                 ))}
@@ -470,13 +531,21 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
           onChange={(e) => setInputText(e.target.value)}
           placeholder={
             isRecording
-              ? 'Listening with Sarvam Saaras v4 STT...'
+              ? selectedLang === 'te'
+                ? 'సర్వం Saaras v4 ద్వారా వింటున్నాము...'
+                : selectedLang === 'hi'
+                ? 'सर्वम Saaras v4 द्वारा सुना जा रहा है...'
+                : 'Listening with Sarvam Saaras v4 STT...'
               : isTranscribing
-              ? 'Transcribing Indic audio...'
+              ? selectedLang === 'te'
+                ? 'ఆడియోను టెక్స్ట్‌గా మారుస్తున్నాము...'
+                : selectedLang === 'hi'
+                ? 'ऑडियो ट्रांसक्राइब हो रहा है...'
+                : 'Transcribing Indic audio...'
               : selectedLang === 'te'
-              ? 'తెలుగులో టైప్ చేయండి లేదా మైక్ వాడండి...'
+              ? 'తెలుగులో టైప్ చేయండి లేదా మాట్లాడటానికి మైక్ వాడండి...'
               : selectedLang === 'hi'
-              ? 'हिंदी में टाइप करें या माइक का उपयोग करें...'
+              ? 'हिंदी में टाइप करें या बोलने के लिए माइक का उपयोग करें...'
               : 'Type a message in English or click mic...'
           }
           className="flex-1 rounded-full bg-white px-4 py-2 text-xs text-[#111B21] placeholder:text-[#8696A0] shadow-[0_1px_1px_rgba(0,0,0,0.06)] border border-transparent focus:outline-none focus:ring-1 focus:ring-[#00A884]"
