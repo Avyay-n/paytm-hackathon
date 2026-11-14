@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Volume2, CheckCircle2, RotateCcw, AlertTriangle, Moon } from 'lucide-react';
+import { API_BASE } from '../api';
 
 interface PaytmSoundboxMiniProps {
   deviceId?: string;
@@ -66,7 +67,7 @@ export const PaytmSoundboxMini: React.FC<PaytmSoundboxMiniProps> = ({
 
     try {
       setIsPlayingAudio(true);
-      const res = await fetch('http://localhost:8000/api/sarvam/tts', {
+      const res = await fetch(`${API_BASE}/sarvam/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: textToAnnounce, language_code: 'hi-IN' })

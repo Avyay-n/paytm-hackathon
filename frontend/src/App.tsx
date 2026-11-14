@@ -31,7 +31,8 @@ import {
   fetchLoans,
   fetchAllAuditLogs,
   runPipeline,
-  resetDatabase
+  resetDatabase,
+  API_BASE
 } from './api';
 import { MascotNarrator } from './components/MascotNarrator';
 import { PipelineVisualizer } from './components/PipelineVisualizer';
@@ -392,7 +393,7 @@ export const App: React.FC = () => {
 
     // 1. Synthesize audio via Sarvam AI Bulbul v4 on backend
     try {
-      const res = await fetch('http://localhost:8000/api/sarvam/tts', {
+      const res = await fetch(`${API_BASE}/sarvam/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: cleanText, language_code: langCode })
