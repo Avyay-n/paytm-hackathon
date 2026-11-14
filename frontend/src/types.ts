@@ -70,6 +70,9 @@ export interface NodeResult {
 
 export interface ChatMessage {
   display_text: string;
+  english_text?: string;
+  telugu_text?: string;
+  hindi_text?: string;
   tts_native_text: string;
   recommended_option: string;
   options: Array<{

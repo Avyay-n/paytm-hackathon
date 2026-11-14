@@ -19,19 +19,35 @@ async def execute_node3(
     classification = n1_data.get("classification", "VERIFIED_MACRO_DISTRESS")
 
     if classification == "HEALTHY_TECH_BOUNCE":
-        display_text = (
-            f"Namaste {merchant.name} ji, this is Paytm Lending on behalf of {loan.lender_nbfc_partner}. "
+        english_text = (
+            f"Namaste {merchant.name} ji, this is Paytm Lending on behalf of {loan.lender_nbfc_partner} (Regulated Entity). "
             f"We noticed that your daily T+1 settlement sweep of ₹{int(loan.current_daily_edi)} was not completed "
-            f"this morning due to an NPCI bank switch timeout. Your QR volume and Soundbox heartbeat remain healthy.\n\n"
-            f"✓ ₹0.00 Bounce Penalty / ₹0.00 Penal Interest.\n"
+            f"this morning due to an NPCI bank switch timeout. Your QR transaction velocity and Soundbox heartbeat remain healthy.\n\n"
+            f"✓ ₹0.00 Bounce Penalty & ₹0.00 Penal Interest per RBI Digital Lending Guidelines.\n"
             f"Click below to initiate an immediate 1-Click T+1 Settlement Retry."
+        )
+        telugu_text = (
+            f"నమస్కారం {merchant.name} గారు, Paytm Lending & {loan.lender_nbfc_partner} నుండి సంప్రదిస్తున్నాము. "
+            f"బ్యాంక్ సర్వర్ లేదా NPCI స్విచ్ టైమౌట్ వల్ల మీ రోజువారీ T+1 సెటిల్మెంట్ పూర్తి కాలేదు. "
+            f"మీ QR కలెక్షన్లు ఆరోగ్యంగా ఉన్నాయి.\n\n"
+            f"✓ RBI నిబంధనల ప్రకారం ₹0.00 అపరాధ రుసుము (Zero Penalty).\n"
+            f"కింది బటన్ ద్వారా 1-క్లిక్ రీట్రై ప్రారంభించండి."
+        )
+        hindi_text = (
+            f"नमस्ते {merchant.name} जी, Paytm Lending & {loan.lender_nbfc_partner} की तरफ से। "
+            f"बैंक स्विच टाइमआउट के कारण आज का T+1 सेटलमेंट पूरा नहीं हुआ। आपके QR और साउंडबॉक्स पूरी तरह सक्रिय हैं।\n\n"
+            f"✓ ₹0.00 पेनल्टी / ₹0.00 बाउंस चार्ज।\n"
+            f"शून्य पेनल्टी के साथ पुनः प्रयास करने के लिए 1-क्लिक रीट्राय पर क्लिक करें।"
         )
         tts_native_text = (
             f"नमस्ते {merchant.name} जी। बैंक स्विच टाइमआउट के कारण आज का सेटलमेंट पूरा नहीं हुआ। "
             f"शून्य पेनल्टी के साथ पुनः प्रयास करने के लिए बटन पर क्लिक करें।"
         )
         chat_message = {
-            "display_text": display_text,
+            "display_text": english_text,
+            "english_text": english_text,
+            "telugu_text": telugu_text,
+            "hindi_text": hindi_text,
             "tts_native_text": tts_native_text,
             "recommended_option": "RETRY_T1_SWEEP",
             "options": [
@@ -71,6 +87,9 @@ async def execute_node3(
 
         chat_message = {
             "display_text": ai_res.get("display_text", ""),
+            "english_text": ai_res.get("english_text", ai_res.get("display_text", "")),
+            "telugu_text": ai_res.get("telugu_text", ""),
+            "hindi_text": ai_res.get("hindi_text", ""),
             "tts_native_text": tts_text,
             "recommended_option": ai_res.get("recommended_option", "OPTION_A"),
             "options": [
@@ -80,10 +99,10 @@ async def execute_node3(
             ],
             "audio": audio_result
         }
-        headline = f"Multilingual Negotiation Agent: {merchant.preferred_language} Speech & Offer Generated"
+        headline = f"Multilingual Negotiation Agent: Multi-Language Offer & Speech Synthesized"
         summary = (
             f"Generated high-empathy communication referencing Pin Code {merchant.pin_code} macro shock. "
-            f"Synthesized Sarvam AI Bulbul v4 audio waveform for Paytm Soundbox and WhatsApp stream."
+            f"Default English display with instant Telugu/Hindi toggle. Synthesized Sarvam AI Bulbul v4 audio."
         )
 
     elapsed_ms = int((time.time() - start_time) * 1000) + 120

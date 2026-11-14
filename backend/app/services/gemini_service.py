@@ -24,106 +24,66 @@ async def generate_recovery_message(
     user_reply: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Generates a compliant, empathetic negotiation message in the merchant's preferred language
-    using Gemini 2.5 Flash, with clean fallback to high-fidelity Indic templates.
+    Generates compliant, empathetic negotiation messages in English (default display),
+    Telugu, and Hindi/Hinglish, enabling seamless instant multi-language toggling.
     """
-    prompt = f"""You are the Paytm Recovery Copilot, an autonomous LSP AI teammate acting on behalf of regulated lender {nbfc_partner}.
-Your goal is to empathetically negotiate an EDI restructuring for {merchant_name} ({business_name}) in Pin Code {pin_code}, {city}.
+    # Deterministic high-quality texts for all 3 languages
+    telugu_text = (
+        f"నమస్కారం {merchant_name} గారు, Paytm Lending & {nbfc_partner} (Regulated Entity) నుండి సంప్రదిస్తున్నాము. "
+        f"పిన్ కోడ్ {pin_code} లో భారీ వర్షాలు మరియు మెట్రో కాలువల పనుల వల్ల మీ వీధిలోని {peer_cluster_affected_pct:.0f}% దుకాణాలలో వ్యాపారం తగ్గింది. "
+        f"మీ ప్రస్తుత రోజువారీ EDI ₹{int(current_edi)} భారం తగ్గించడానికి, మేము 2 ప్రత్యామ్నాయాలు అందిస్తున్నాము:\n\n"
+        f"• ఆప్షన్ A: రాబోయే 14 రోజులకు EDI ని ₹{int(step_down_edi)}/రోజు కు తగ్గించడం.\n"
+        f"• ఆప్షన్ B: రోజూ వచ్చే QR కలెక్షన్లలో {int(elastic_sweep_pct)}% మాత్రమే సర్దుబాటు చేయడం (ఎలాస్టిక్ స్వీప్).\n\n"
+        f"✓ RBI నిబంధనల ప్రకారం ₹0.00 అపరాధ వడ్డీ (Penal Charges).\n"
+        f"సహాయం కొరకు: {gro_disclosure}."
+    )
 
-Context:
-- Telemetry: QR volume dipped by {drop_pct:.1f}% over the last 7 days.
-- Regional Macro Shock: {macro_headline} ({macro_event_type}). {peer_cluster_affected_pct:.1f}% of neighboring Paytm merchants also experienced this dip.
-- Current EDI: ₹{current_edi}/day
-- Restructure Option A: Step-down fixed EDI to ₹{step_down_edi}/day for 14 days.
-- Restructure Option B: Self-healing Elastic QR Sweep of {elastic_sweep_pct}% of daily settlement (₹{step_down_edi} to ₹{int(current_edi * 1.3)}/day).
-- RBI Compliance Guarantee: ₹0.00 penal interest, zero bounce fees.
-- Grievance Redressal: {gro_disclosure}.
-- Preferred Language: {preferred_language} (Telugu, Hinglish, or English).
-- Merchant's latest input: {user_reply or "None (Initial outreach)"}.
+    hindi_text = (
+        f"नमस्ते {merchant_name} जी, Paytm Lending & {nbfc_partner} (Regulated Entity) की तरफ से। "
+        f"पिन कोड {pin_code} में भारी बारिश और मेट्रो ड्रेनेज काम के कारण आपके क्षेत्र में {peer_cluster_affected_pct:.0f}% दुकानों में व्यापार प्रभावित हुआ है। "
+        f"आपकी वर्तमान दैनिक EDI ₹{int(current_edi)}/दिन को आसान बनाने के लिए हम 2 विकल्प दे रहे हैं:\n\n"
+        f"• विकल्प A: अगले 14 दिनों के लिए EDI घटाकर ₹{int(step_down_edi)}/दिन करना।\n"
+        f"• विकल्प B: इलास्टिक QR स्वीप — दैनिक QR कलेक्शन का केवल {int(elastic_sweep_pct)}% स्वीप।\n\n"
+        f"✓ RBI नियमों के तहत ₹0.00 दंडात्मक ब्याज (Penal Charges).\n"
+        f"शिकायत निवारण अधिकारी: {gro_disclosure}."
+    )
 
-Respond strictly in valid JSON format with these exact keys:
-{{
-  "display_text": "The empathetic message to display in chat (incorporating natural polite phrasing, mentioning the regional shock, options, ₹0 penal charges, and GRO contact)",
-  "tts_native_text": "The text written purely in native Telugu script (if language is Telugu) or Devanagari script (if language is Hinglish/Hindi) or clear English, designed for Sarvam AI Bulbul v4 TTS",
-  "recommended_option": "OPTION_A",
-  "summary_reasoning": "Brief explanation of why this offer protects NBFC yield while curing the merchant's cash flow dip"
-}}
-"""
+    english_text = (
+        f"Hello {merchant_name}, this is Paytm Recovery Copilot on behalf of {nbfc_partner} (Regulated Entity). "
+        f"Our telemetry identified a {drop_pct:.0f}% settlement dip in Pin Code {pin_code} ({city}) due to {macro_headline}. "
+        f"Over {peer_cluster_affected_pct:.0f}% of nearby Paytm merchants in your 300m cluster experienced this verified regional shock.\n\n"
+        f"To protect your cash flow and keep your loan account healthy (preventing SMA-0 from slipping):\n"
+        f"• Option A: Step-down EDI to ₹{int(step_down_edi)}/day for the next 14 days\n"
+        f"• Option B: Self-healing Elastic {int(elastic_sweep_pct)}% daily QR collection sweep\n\n"
+        f"✓ ₹0.00 Penal Interest & ₹0.00 Bounce Charges (RBI Fair Practices Code).\n"
+        f"Regulatory Grievance Redressal: {gro_disclosure}."
+    )
 
-    # 1. Try Gemini 2.5 Flash
-    if settings.GEMINI_API_KEY:
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
-            payload = {
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"}
-            }
-            async with httpx.AsyncClient(timeout=4.0) as client:
-                res = await client.post(url, json=payload)
-                if res.status_code == 200:
-                    data = res.json()
-                    raw_text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                    if raw_text.startswith("```json"):
-                        raw_text = raw_text[7:]
-                    if raw_text.startswith("```"):
-                        raw_text = raw_text[3:]
-                    if raw_text.endswith("```"):
-                        raw_text = raw_text[:-3]
-                    raw_text = raw_text.strip()
-                    parsed = json.loads(raw_text)
-                    if "display_text" in parsed:
-                        return parsed
-        except Exception as e:
-            logger.warning(f"Gemini API generation fallback: {e}")
-
-    # 2. Deterministic High-Fidelity Indic Fallback
+    # Native script for Sarvam AI Bulbul v4 TTS
     if preferred_language.lower() == "telugu":
-        display_text = (
-            f"నమస్కారం {merchant_name} గారు, Paytm Lending & {nbfc_partner} నుండి సంప్రదిస్తున్నాము. "
-            f"పిన్ కోడ్ {pin_code} లో భారీ వర్షాలు మరియు మెట్రో కాలువల పనుల వల్ల మీ వీధిలోని {peer_cluster_affected_pct:.0f}% దుకాణాలలో వ్యాపారం తగ్గింది. "
-            f"మీ ప్రస్తుత రోజువారీ EDI ₹{int(current_edi)} భారం తగ్గించడానికి, మేము 2 ప్రత్యామ్నాయాలు అందిస్తున్నాము:\n\n"
-            f"• ఆప్షన్ A: రాబోయే 14 రోజులకు EDI ని ₹{int(step_down_edi)}/రోజు కు తగ్గించడం.\n"
-            f"• ఆప్షన్ B: రోజూ వచ్చే QR కలెక్షన్లలో 10% మాత్రమే సర్దుబాటు చేయడం (ఎలాస్టిక్ స్వీప్).\n\n"
-            f"✓ RBI నిబంధనల ప్రకారం ₹0.00 అపరాధ వడ్డీ (Penal Charges).\n"
-            f"సహాయం కొరకు: {gro_disclosure}."
-        )
         tts_native_text = (
-            f"నమస్కారం రమేష్ గారు. పిన్ కోడ్ 500081 లో వర్షాలు మరియు మెట్రో పనుల వల్ల వ్యాపారం తగ్గింది. "
-            f"మీ లోన్ EDI ని రోజుకు ₹150 కి మార్చడానికి మీ సౌండ్‌బాక్స్ బటన్‌ను రెండుసార్లు నొక్కండి లేదా ఆప్షన్ A అని రిప్లై ఇవ్వండి."
+            f"నమస్కారం {merchant_name} గారు. పిన్ కోడ్ {pin_code} లో వర్షాలు మరియు మెట్రో పనుల వల్ల వ్యాపారం తగ్గింది. "
+            f"మీ లోన్ EDI ని రోజుకు ₹{int(step_down_edi)} కి మార్చడానికి మీ సౌండ్‌బాక్స్ బటన్‌ను రెండుసార్లు నొక్కండి లేదా ఆప్షన్ A అని రిప్లై ఇవ్వండి."
         )
-    elif preferred_language.lower() == "hinglish":
-        display_text = (
-            f"Namaste {merchant_name} ji, Paytm Lending & {nbfc_partner} ki taraf se. "
-            f"Pin Code {pin_code} mein bhari baarish aur metro drainage work ke kaaran area mein footfall {drop_pct:.0f}% gira hai. "
-            f"Aapki current EDI ₹{int(current_edi)}/day ko aasan karne ke liye hum 2 options offer kar rahe hain:\n\n"
-            f"• Option A: Aane wale 14 dino ke liye EDI step-down karke ₹{int(step_down_edi)}/day kar dein.\n"
-            f"• Option B: Elastic QR Sweep — rozana QR collection ka sirf 10% sweep.\n\n"
-            f"✓ RBI Rules ke mutabiq ₹0 Penal Interest & ₹0 Bounce Charges.\n"
-            f"Grievance Officer: {gro_disclosure}."
-        )
+    elif preferred_language.lower() == "hinglish" or preferred_language.lower() == "hindi":
         tts_native_text = (
-            f"नमस्ते रमेश जी। भारी बारिश और मेट्रो काम के कारण आपके पिन कोड 500081 में व्यापार प्रभावित हुआ है। "
-            f"आपकी दैनिक ई डी आई को ₹150 करने के लिए अपने साउंडबॉक्स बटन को दो बार दबाएं।"
+            f"नमस्ते {merchant_name} जी। भारी बारिश और मेट्रो काम के कारण आपके पिन कोड {pin_code} में व्यापार प्रभावित हुआ है। "
+            f"आपकी दैनिक ई डी आई को ₹{int(step_down_edi)} करने के लिए अपने साउंडबॉक्स बटन को दो बार दबाएं।"
         )
     else:
-        display_text = (
-            f"Hello {merchant_name}, this is Paytm Recovery Copilot on behalf of {nbfc_partner}. "
-            f"We detected a {drop_pct:.0f}% settlement dip in Pin Code {pin_code} due to {macro_headline}. "
-            f"Over {peer_cluster_affected_pct:.0f}% of nearby Paytm merchants experienced this regional shock.\n\n"
-            f"To protect your cash flow and keep your account fully compliant (SMA-0 Cured):\n"
-            f"• Option A: Step-down EDI to ₹{int(step_down_edi)}/day for 14 days\n"
-            f"• Option B: Self-healing Elastic 10% daily QR sweep\n\n"
-            f"✓ ₹0.00 Penal Interest per RBI Digital Lending Guidelines.\n"
-            f"Regulatory Contact: {gro_disclosure}."
-        )
         tts_native_text = (
-            f"Hello {merchant_name}. Due to verified local waterlogging and metro work in Pin Code {pin_code}, "
+            f"Hello {merchant_name}. Due to verified local waterlogging and metro excavation in Pin Code {pin_code}, "
             f"your daily loan EDI can be reduced to ₹{int(step_down_edi)} per day. Double-tap your Paytm Soundbox button to confirm."
         )
 
+    # Default display_text is in English as requested for clear display & demonstration,
+    # with telugu_text and hindi_text included so frontend toggles instantly.
     return {
-        "display_text": display_text,
+        "display_text": english_text,
+        "english_text": english_text,
+        "telugu_text": telugu_text,
+        "hindi_text": hindi_text,
         "tts_native_text": tts_native_text,
         "recommended_option": "OPTION_A",
-        "summary_reasoning": f"Verified external shock confirms genuine cash flow strain; step-down EDI to ₹{int(step_down_edi)} avoids default and keeps SMA-0 healthy."
+        "summary_reasoning": f"Verified external shock confirms genuine cash flow strain in Pin Code {pin_code}; step-down EDI to ₹{int(step_down_edi)} avoids default while protecting NBFC yield."
     }

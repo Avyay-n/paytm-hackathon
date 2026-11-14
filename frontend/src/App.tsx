@@ -479,7 +479,7 @@ export const App: React.FC = () => {
                     merchantName={currentMerchant.name}
                     currentEdi={currentLoan.current_daily_edi}
                     stepDownEdi={currentLoan.min_allowed_edi}
-                    audioText={chatMessage?.tts_native_text || chatMessage?.display_text}
+                    audioText={chatMessage?.display_text || chatMessage?.tts_native_text}
                     isPlayingAudio={isPlayingAudio}
                     onDoubleTapConfirm={handleDoubleTapSoundbox}
                     onPlayAudio={() => playVoice()}
@@ -597,7 +597,7 @@ export const App: React.FC = () => {
                   merchantName={currentMerchant.name}
                   currentEdi={currentLoan?.current_daily_edi || 500}
                   stepDownEdi={currentLoan?.min_allowed_edi || 150}
-                  audioText={chatMessage?.tts_native_text || chatMessage?.display_text}
+                  audioText={chatMessage?.display_text || chatMessage?.tts_native_text}
                   isPlayingAudio={isPlayingAudio}
                   onDoubleTapConfirm={handleDoubleTapSoundbox}
                   onPlayAudio={() => playVoice()}
