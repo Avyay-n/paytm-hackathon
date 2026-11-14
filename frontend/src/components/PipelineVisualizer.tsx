@@ -359,285 +359,285 @@ export const PipelineVisualizer: React.FC<PipelineVisualizerProps> = ({
                 setActiveModalNode(null);
               }
             }}
-            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 md:p-8 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-gradient-to-b from-[#0A224E] via-[#071838] to-[#001433] border border-cyan-400/50 p-6 shadow-[0_0_60px_rgba(0,186,242,0.35)] text-left space-y-5 relative">
+            <div className="w-full max-w-2xl lg:max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl bg-gradient-to-b from-[#0A224E] via-[#071838] to-[#001433] border border-cyan-400/50 p-6 sm:p-8 shadow-[0_0_70px_rgba(0,186,242,0.35)] text-left space-y-6 relative">
               {/* Modal Header */}
-            <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-[#001433] border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-inner shrink-0">
-                  {activeModalNode === 1 && <Activity className="h-5 w-5" />}
-                  {activeModalNode === 2 && <Shield className="h-5 w-5" />}
-                  {activeModalNode === 3 && <Bot className="h-5 w-5" />}
-                  {activeModalNode === 4 && <Zap className="h-5 w-5 text-emerald-400" />}
-                  {activeModalNode === 5 && <UserCheck className="h-5 w-5 text-amber-400" />}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase font-black px-2 py-0.5 rounded bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
-                      Node {activeModalNode}
-                    </span>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold border ${getNodeStatus(activeModalNode).badgeColor}`}>
-                      {getNodeStatus(activeModalNode).label}
-                    </span>
+              <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-[#001433] border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-inner shrink-0">
+                    {activeModalNode === 1 && <Activity className="h-6 w-6" />}
+                    {activeModalNode === 2 && <Shield className="h-6 w-6" />}
+                    {activeModalNode === 3 && <Bot className="h-6 w-6" />}
+                    {activeModalNode === 4 && <Zap className="h-6 w-6 text-emerald-400" />}
+                    {activeModalNode === 5 && <UserCheck className="h-6 w-6 text-amber-400" />}
                   </div>
-                  <h3 className="text-lg font-black text-white tracking-tight mt-1">
-                    {activeModalNode === 1 && 'Telemetry & Macro Diagnostician'}
-                    {activeModalNode === 2 && 'RBI Compliance Gatekeeper'}
-                    {activeModalNode === 3 && 'Multilingual Negotiation Brain'}
-                    {activeModalNode === 4 && 'Action Executor & ACID Commit'}
-                    {activeModalNode === 5 && 'Human-in-the-Loop (HITL) Escalation'}
-                  </h3>
+                  <div>
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <span className="text-xs font-mono uppercase font-black px-2.5 py-0.5 rounded-md bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
+                        Node {activeModalNode}
+                      </span>
+                      <span className={`text-xs font-mono px-2.5 py-0.5 rounded-md font-bold border ${getNodeStatus(activeModalNode).badgeColor}`}>
+                        {getNodeStatus(activeModalNode).label}
+                      </span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                      {activeModalNode === 1 && 'Telemetry & Macro Diagnostician'}
+                      {activeModalNode === 2 && 'RBI Compliance Gatekeeper'}
+                      {activeModalNode === 3 && 'Multilingual Negotiation Brain'}
+                      {activeModalNode === 4 && 'Action Executor & ACID Commit'}
+                      {activeModalNode === 5 && 'Human-in-the-Loop (HITL) Escalation'}
+                    </h3>
+                  </div>
                 </div>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setActiveModalNode(null)}
+                  className="text-slate-400 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-all"
+                  title="Close (Esc)"
+                >
+                  <X className="h-6 w-6" />
+                </button>
               </div>
 
-              {/* Close Button */}
-              <button
-                onClick={() => setActiveModalNode(null)}
-                className="text-slate-400 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-all"
-                title="Close (Esc)"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* In-Flight Processing Alert if Node is Active/Pending */}
-            {isProcessing && (
-              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs animate-pulse">
-                <Hourglass className="h-4 w-4 shrink-0 text-amber-400 animate-spin" />
-                <div>
-                  <strong className="font-bold">Autonomous Rail in Progress:</strong> This node is currently executing in the pipeline. Live telemetry and ledger mutations are being synchronized.
+              {/* In-Flight Processing Alert if Node is Active/Pending */}
+              {isProcessing && (
+                <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-sm animate-pulse">
+                  <Hourglass className="h-5 w-5 shrink-0 text-amber-400 animate-spin" />
+                  <div>
+                    <strong className="font-bold">Autonomous Rail in Progress:</strong> This node is currently executing in the pipeline. Live telemetry and ledger mutations are being synchronized.
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* SECTION 1: WHAT THIS NODE DOES */}
-            <div className="rounded-xl bg-[#001433]/70 border border-white/10 p-4 space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cyan-400">
-                <Info className="h-3.5 w-3.5" />
-                <span>What This Node Does (Fintech Architecture)</span>
-              </div>
-              <p className="text-xs text-slate-200 leading-relaxed font-normal">
-                {activeModalNode === 1 &&
-                  'Monitors daily UPI QR settlements and correlates dips against the 300m hyper-local peer cluster and IMD weather radar to distinguish genuine merchant distress from cash diversion fraud.'}
-                {activeModalNode === 2 &&
-                  'Deterministic rule engine enforcing the RBI Fair Practices Code. Acts as a statutory firewall before any outreach or loan restructuring can occur.'}
-                {activeModalNode === 3 &&
-                  'Combines Gemini 2.5 Flash and Sarvam AI Bulbul v4 to converse empathetically in the merchant’s preferred native tongue (Telugu, Hindi, or English) while enforcing strict lender math bounds.'}
-                {activeModalNode === 4 &&
-                  'Converts merchant consent (via WhatsApp chip or Soundbox double-press) into an atomic database transaction that restructures the loan in SQL and issues regulatory documentation.'}
-                {activeModalNode === 5 &&
-                  'A safety circuit breaker. If an account has chronic dormancy (>20 days zero volume) or signals willful default, AI restructuring is locked out and a structured Risk Dossier is handed to an authorized human DRA recovery agent.'}
-              </p>
-            </div>
-
-            {/* SECTION 2: WHAT CHANGED / CURRENT REAL-TIME STATE */}
-            <div className="rounded-xl bg-[#001433]/70 border border-white/10 p-4 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>What Changed / Current Real-Time State</span>
+              {/* SECTION 1: WHAT THIS NODE DOES */}
+              <div className="rounded-2xl bg-[#001433]/70 border border-white/10 p-5 sm:p-6 space-y-2.5">
+                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-cyan-400">
+                  <Info className="h-4 w-4" />
+                  <span>What This Node Does (Fintech Architecture)</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  Active: {currentScenario}
+                <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-normal">
+                  {activeModalNode === 1 &&
+                    'Monitors daily UPI QR settlements and correlates dips against the 300m hyper-local peer cluster and IMD weather radar to distinguish genuine merchant distress from cash diversion fraud.'}
+                  {activeModalNode === 2 &&
+                    'Deterministic rule engine enforcing the RBI Fair Practices Code. Acts as a statutory firewall before any outreach or loan restructuring can occur.'}
+                  {activeModalNode === 3 &&
+                    'Combines Gemini 2.5 Flash and Sarvam AI Bulbul v4 to converse empathetically in the merchant’s preferred native tongue (Telugu, Hindi, or English) while enforcing strict lender math bounds.'}
+                  {activeModalNode === 4 &&
+                    'Converts merchant consent (via WhatsApp chip or Soundbox double-press) into an atomic database transaction that restructures the loan in SQL and issues regulatory documentation.'}
+                  {activeModalNode === 5 &&
+                    'A safety circuit breaker. If an account has chronic dormancy (>20 days zero volume) or signals willful default, AI restructuring is locked out and a structured Risk Dossier is handed to an authorized human DRA recovery agent.'}
+                </p>
+              </div>
+
+              {/* SECTION 2: WHAT CHANGED / CURRENT REAL-TIME STATE */}
+              <div className="rounded-2xl bg-[#001433]/70 border border-white/10 p-5 sm:p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-emerald-400">
+                    <Sparkles className="h-4 w-4" />
+                    <span>What Changed / Current Real-Time State</span>
+                  </div>
+                  <span className="text-xs text-slate-400 font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10">
+                    Active Scenario: {currentScenario}
+                  </span>
+                </div>
+
+                {/* Dynamic Content for Node 1 */}
+                {activeModalNode === 1 && (
+                  <div className="space-y-3 text-sm sm:text-[15px] text-slate-200">
+                    <div className="flex items-start gap-2.5">
+                      <span className="h-2 w-2 rounded-full bg-cyan-400 mt-2 shrink-0" />
+                      <div>
+                        <strong>Baseline Telemetry Dip:</strong> 30-day baseline dropped{' '}
+                        <span className="text-rose-300 font-bold">-45%</span> (from ₹4,200 ➔ ₹2,310/day).
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <span className="h-2 w-2 rounded-full bg-cyan-400 mt-2 shrink-0" />
+                      <div>
+                        <strong>Pin-Code {pinCode} Cluster Radar:</strong>{' '}
+                        <span className="text-cyan-300 font-bold">{clusterAffectedPct}% (18/22)</span> neighboring shops experienced parallel dips due to verified road construction & waterlogging.
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                      <div>
+                        <strong>DPDP Act 2023 Consent:</strong> Verified & cleared under regulatory ID{' '}
+                        <span className="text-emerald-300 font-mono font-bold">{dpdpConsentId}</span>.
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-white/10 text-xs sm:text-sm text-emerald-300 font-bold flex items-center gap-1.5">
+                      <CheckCircle className="h-4 w-4" /> Status: GENUINE_EXTERNAL_SHOCK_VERIFIED
+                    </div>
+                  </div>
+                )}
+
+                {/* Dynamic Content for Node 2 */}
+                {activeModalNode === 2 && (
+                  <div className="space-y-3 text-sm sm:text-[15px] text-slate-200">
+                    <div className="flex items-start gap-2.5">
+                      <span className="h-2 w-2 rounded-full bg-cyan-400 mt-2 shrink-0" />
+                      <div>
+                        <strong>Clock Check:</strong> Current simulated time is{' '}
+                        <span className="text-white font-mono font-bold text-base">{String(simulatedHour).padStart(2, '0')}:00 IST</span>{' '}
+                        (RBI Statutory Contact Window: <span className="text-emerald-300 font-bold">08:00–19:00 IST</span>).
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <span className={`h-2 w-2 rounded-full ${isRbiWindowOpen ? 'bg-emerald-400' : 'bg-rose-400'} mt-2 shrink-0`} />
+                      <div>
+                        <strong>Night Window Policy:</strong>{' '}
+                        {isRbiWindowOpen ? (
+                          <span>Currently within legal hours. Merchant outreach permitted under RBI Digital Lending Guidelines.</span>
+                        ) : (
+                          <span className="text-rose-300 font-bold">
+                            STATUS BLOCKED: Outreach prohibited after 19:00 IST. Automatically queued for dispatch at 08:05 AM tomorrow.
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                      <div>
+                        <strong>Rule Guarantee:</strong> ₹0.00 penal interest / bounce fee waiver applied (100% RBI Fair Practices compliance).
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Dynamic Content for Node 3 */}
+                {activeModalNode === 3 && (
+                  <div className="space-y-3 text-sm sm:text-[15px] text-slate-200">
+                    {!isRbiWindowOpen ? (
+                      <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-sm flex items-start gap-3">
+                        <Hourglass className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+                        <div>
+                          <strong>Awaiting Compliance Clearance:</strong> Node 3 is on hold because Node 2 (RBI Gatekeeper) has blocked communications during the night window (19:00–08:00 IST). Restructure offers will be transmitted at 08:05 AM.
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-cyan-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>Multilingual Native Script:</strong> Telugu (తెలుగు) / Hindi (हिंदी) / English dynamically active on merchant phone simulator.
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-cyan-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>Deterministic Math Guardrail:</strong> Minimum allowed floor ={' '}
+                            <span className="text-cyan-300 font-bold">₹150/day</span> (prevents AI hallucination or granting unauthorized haircuts like ₹50/day).
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-cyan-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>Indic Voice Synthesis:</strong> High-fidelity audio generated via{' '}
+                            <span className="text-cyan-300 font-bold">Sarvam AI Bulbul v4 flash</span> with interactive waveform playback.
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Dynamic Content for Node 4 */}
+                {activeModalNode === 4 && (
+                  <div className="space-y-3 text-sm sm:text-[15px] text-slate-200">
+                    {isCured ? (
+                      <>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>SQL Table Mutation:</strong> <code className="text-cyan-300">current_daily_edi</code> updated{' '}
+                            <span className="line-through text-slate-400">₹500</span> ➔{' '}
+                            <span className="text-emerald-300 font-bold">₹150/day</span>,{' '}
+                            <code className="text-cyan-300">restructure_duration_days</code> set to{' '}
+                            <span className="text-emerald-300 font-bold">14 days</span>.
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>Regulatory Artefacts Issued:</strong> Digital RBI Key Fact Statement (KFS) sealed with ₹0 penal charges & NPCI AutoPay Mandate link (<code className="text-cyan-300 font-mono">paytmlending@okaxis</code>).
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>Idempotent Commit:</strong> Mutation committed under hash <span className="font-mono text-emerald-300">tx_9001_restruct_safe</span> with zero duplicate risk.
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200 text-sm flex items-start gap-3">
+                        <Hourglass className="h-5 w-5 text-cyan-300 shrink-0 mt-0.5 animate-pulse" />
+                        <div>
+                          <strong>Awaiting Merchant Consent (Still Being Processed):</strong> This node is primed and awaiting the merchant's consent. Click{' '}
+                          <strong className="text-white">"Haan, confirm kar do"</strong> on the phone or double-press the{' '}
+                          <strong className="text-white">Paytm Soundbox</strong> button to execute this atomic ACID SQL mutation live!
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Dynamic Content for Node 5 */}
+                {activeModalNode === 5 && (
+                  <div className="space-y-3 text-sm sm:text-[15px] text-slate-200">
+                    {isEscalated ? (
+                      <>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-amber-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>HITL Escalation Triggered:</strong> Account flagged for{' '}
+                            <span className="text-amber-300 font-bold">25 days zero volume</span> + Soundbox hardware offline.
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-amber-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>Officer Assigned:</strong> Human DRA Officer{' '}
+                            <span className="text-white font-bold">Suresh Varma (DRA-8831)</span> allocated with mandatory body-cam verification protocol.
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2.5">
+                          <span className="h-2 w-2 rounded-full bg-amber-400 mt-2 shrink-0" />
+                          <div>
+                            <strong>Lockout Status:</strong> Autonomous AI restructuring disabled to protect lender capital.
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-sm flex items-start gap-3">
+                        <Check className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                        <div>
+                          <strong>Standby Mode (No Escalation Needed):</strong> Autonomous recovery is resolving this account smoothly. Node 5 remains on standby unless chronic dormancy (&gt;20 days zero volume) or hostile friction is encountered.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                <span className="text-xs text-slate-400">
+                  Press <kbd className="px-2 py-0.5 rounded bg-white/10 text-slate-200 font-mono text-xs">Esc</kbd> or click outside to dismiss
                 </span>
+                <button
+                  onClick={() => setActiveModalNode(null)}
+                  className="px-6 py-2.5 rounded-xl bg-[#00BAF2] hover:bg-[#00BAF2]/90 text-white font-black text-sm transition-all shadow-lg shadow-cyan-500/25 border border-cyan-300/40 hover:scale-[1.02]"
+                >
+                  Close Details
+                </button>
               </div>
-
-              {/* Dynamic Content for Node 1 */}
-              {activeModalNode === 1 && (
-                <div className="space-y-2 text-xs text-slate-200">
-                  <div className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
-                    <div>
-                      <strong>Baseline Telemetry Dip:</strong> 30-day baseline dropped{' '}
-                      <span className="text-rose-300 font-bold">-45%</span> (from ₹4,200 ➔ ₹2,310/day).
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
-                    <div>
-                      <strong>Pin-Code {pinCode} Cluster Radar:</strong>{' '}
-                      <span className="text-cyan-300 font-bold">{clusterAffectedPct}% (18/22)</span> neighboring shops experienced parallel dips due to verified road construction & waterlogging.
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-                    <div>
-                      <strong>DPDP Act 2023 Consent:</strong> Verified & cleared under regulatory ID{' '}
-                      <span className="text-emerald-300 font-mono">{dpdpConsentId}</span>.
-                    </div>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-white/5 text-[11px] text-emerald-300 font-bold flex items-center gap-1">
-                    <CheckCircle className="h-3.5 w-3.5" /> Status: GENUINE_EXTERNAL_SHOCK_VERIFIED
-                  </div>
-                </div>
-              )}
-
-              {/* Dynamic Content for Node 2 */}
-              {activeModalNode === 2 && (
-                <div className="space-y-2 text-xs text-slate-200">
-                  <div className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
-                    <div>
-                      <strong>Clock Check:</strong> Current simulated time is{' '}
-                      <span className="text-white font-mono font-bold">{String(simulatedHour).padStart(2, '0')}:00 IST</span>{' '}
-                      (RBI Statutory Window: <span className="text-emerald-300 font-bold">08:00–19:00 IST</span>).
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className={`h-1.5 w-1.5 rounded-full ${isRbiWindowOpen ? 'bg-emerald-400' : 'bg-rose-400'} mt-1.5 shrink-0`} />
-                    <div>
-                      <strong>Night Window Policy:</strong>{' '}
-                      {isRbiWindowOpen ? (
-                        <span>Currently within legal hours. Merchant outreach permitted under RBI Digital Lending Guidelines.</span>
-                      ) : (
-                        <span className="text-rose-300 font-bold">
-                          STATUS BLOCKED: Outreach prohibited after 19:00 IST. Automatically queued for dispatch at 08:05 AM tomorrow.
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-                    <div>
-                      <strong>Rule Guarantee:</strong> ₹0.00 penal interest / bounce fee waiver applied (100% RBI Fair Practices compliance).
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Dynamic Content for Node 3 */}
-              {activeModalNode === 3 && (
-                <div className="space-y-2 text-xs text-slate-200">
-                  {!isRbiWindowOpen ? (
-                    <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-200 text-xs flex items-start gap-2">
-                      <Hourglass className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
-                      <div>
-                        <strong>Awaiting Compliance Clearance:</strong> Node 3 is on hold because Node 2 (RBI Gatekeeper) has blocked communications during the night window (19:00–08:00 IST). Restructure offers will be transmitted at 08:05 AM.
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>Multilingual Native Script:</strong> Telugu (తెలుగు) / Hindi (हिंदी) / English dynamically active on merchant phone simulator.
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>Deterministic Math Guardrail:</strong> Minimum allowed floor ={' '}
-                          <span className="text-cyan-300 font-bold">₹150/day</span> (prevents AI hallucination or granting unauthorized haircuts like ₹50/day).
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>Indic Voice Synthesis:</strong> High-fidelity audio generated via{' '}
-                          <span className="text-cyan-300 font-bold">Sarvam AI Bulbul v4 flash</span> with interactive waveform playback.
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Dynamic Content for Node 4 */}
-              {activeModalNode === 4 && (
-                <div className="space-y-2 text-xs text-slate-200">
-                  {isCured ? (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>SQL Table Mutation:</strong> <code className="text-cyan-300">current_daily_edi</code> updated{' '}
-                          <span className="line-through text-slate-400">₹500</span> ➔{' '}
-                          <span className="text-emerald-300 font-bold">₹150/day</span>,{' '}
-                          <code className="text-cyan-300">restructure_duration_days</code> set to{' '}
-                          <span className="text-emerald-300 font-bold">14 days</span>.
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>Regulatory Artefacts Issued:</strong> Digital RBI Key Fact Statement (KFS) sealed with ₹0 penal charges & NPCI AutoPay Mandate link (<code className="text-xs text-cyan-300">paytmlending@okaxis</code>).
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>Idempotent Commit:</strong> Mutation committed under hash <span className="font-mono text-emerald-300">tx_9001_restruct_safe</span> with zero duplicate risk.
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-200 text-xs flex items-start gap-2">
-                      <Hourglass className="h-4 w-4 text-cyan-300 shrink-0 mt-0.5 animate-pulse" />
-                      <div>
-                        <strong>Awaiting Merchant Consent (Still Being Processed):</strong> This node is primed and awaiting the merchant's consent. Click{' '}
-                        <strong className="text-white">"Haan, confirm kar do"</strong> on the phone or double-press the{' '}
-                        <strong className="text-white">Paytm Soundbox</strong> button to execute this atomic ACID SQL mutation live!
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Dynamic Content for Node 5 */}
-              {activeModalNode === 5 && (
-                <div className="space-y-2 text-xs text-slate-200">
-                  {isEscalated ? (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>HITL Escalation Triggered:</strong> Account flagged for{' '}
-                          <span className="text-amber-300 font-bold">25 days zero volume</span> + Soundbox hardware offline.
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>Officer Assigned:</strong> Human DRA Officer{' '}
-                          <span className="text-white font-bold">Suresh Varma (DRA-8831)</span> allocated with mandatory body-cam verification protocol.
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-                        <div>
-                          <strong>Lockout Status:</strong> Autonomous AI restructuring disabled to protect lender capital.
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs flex items-start gap-2">
-                      <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <div>
-                        <strong>Standby Mode (No Escalation Needed):</strong> Autonomous recovery is resolving this account smoothly. Node 5 remains on standby unless chronic dormancy (&gt;20 days zero volume) or hostile friction is encountered.
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
-
-            {/* Modal Footer */}
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-[11px] text-slate-400">
-                Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-slate-300 font-mono text-[10px]">Esc</kbd> or click outside to dismiss
-              </span>
-              <button
-                onClick={() => setActiveModalNode(null)}
-                className="px-4 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/40 font-bold text-xs transition-all shadow-sm"
-              >
-                Close Details
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
