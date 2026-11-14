@@ -25,7 +25,6 @@ import { WhatsAppChat } from './components/WhatsAppChat';
 import { MacroRadarCard } from './components/MacroRadarCard';
 import { SettlementChart } from './components/SettlementChart';
 import { PipelineCascade } from './components/PipelineCascade';
-import { MagicBento, MagicBentoItem } from './components/MagicBento';
 import { AnimatedCounter } from './components/ui/AnimatedCounter';
 import { SpotlightCard } from './components/ui/SpotlightCard';
 import {
@@ -287,67 +286,6 @@ export const App: React.FC = () => {
 
   const personaTheme = getPersonaTheme(selectedMerchantId);
 
-  const bentoItems: MagicBentoItem[] = [
-    {
-      id: 'telemetry_analytics',
-      title: 'Settlement Telemetry',
-      description: 'Real-time T+1 UPI QR velocity tracking & hyper-local peer cluster dip detection',
-      label: 'NODE 1 TELEMETRY',
-      visual: 'analytics',
-      colSpan: 1,
-      rowSpan: 1,
-      onClick: () => setActiveTab('TELEMETRY'),
-    },
-    {
-      id: 'cashflow_dashboard',
-      title: 'Portfolio Recoveries',
-      description: '₹3,85,000+ restored to NBFC partner SMFG India Credit with zero default slips',
-      label: 'RECOVERY YIELD',
-      visual: 'dashboard',
-      colSpan: 1,
-      rowSpan: 1,
-    },
-    {
-      id: 'voice_negotiation',
-      title: 'Multilingual Voice AI',
-      description: 'Empathetic Indic negotiation powered by Gemini 2.5 & Sarvam Bulbul v4 in Telugu, Hinglish & English',
-      label: 'SARVAM AI + GEMINI',
-      visual: 'collaboration',
-      colSpan: 2,
-      rowSpan: 2,
-      onClick: () => setActiveTab('CHAT_SOUNDBOX'),
-    },
-    {
-      id: 'pipeline_automation',
-      title: '5-Node Autonomous Pipeline',
-      description: 'End-to-end execution: Telemetry Ingest -> RBI Gatekeeper -> Multilingual Voice -> Digital KFS -> HITL Escalation',
-      label: 'AUTONOMOUS EXECUTION',
-      visual: 'automation',
-      colSpan: 2,
-      rowSpan: 2,
-      onClick: () => setActiveTab('COMPLIANCE'),
-    },
-    {
-      id: 'connected_rails',
-      title: 'Hardware & Banking Rails',
-      description: 'Live bidirectional sync between Paytm Soundbox 4.0, NPCI Switch, NBFC SQL Ledger, and RBI DRA Field Portal',
-      label: 'CONNECTED ECOSYSTEM',
-      visual: 'integration',
-      colSpan: 1,
-      rowSpan: 1,
-    },
-    {
-      id: 'regulatory_guardrails',
-      title: 'RBI Regulatory Guardrails',
-      description: 'Strict enforcement of 08:00–19:00 IST contact window, ₹0.00 penal charge guarantee, and DPDP consent',
-      label: '100% RBI COMPLIANT',
-      visual: 'security',
-      colSpan: 1,
-      rowSpan: 1,
-      onClick: () => setActiveTab('COMPLIANCE'),
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-[#EEF2F6] text-slate-900 pb-12">
       {/* Header with Paytm LSP Badge */}
@@ -597,39 +535,6 @@ export const App: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* Autonomous AI Architecture & Capabilities Grid (React Bits MagicBento) */}
-            <div className="pt-2">
-              <div className="mb-3">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-[#002970]">
-                    Autonomous Recovery Engine & AI Architecture
-                  </h3>
-                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-[#002970] border border-blue-200">
-                    Interactive Grid
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500">
-                  Telemetry analytics, portfolio yield, multi-agent negotiation, and regulatory guardrails
-                </p>
-              </div>
-
-              <MagicBento
-                items={bentoItems}
-                columns={4}
-                rowHeight={195}
-                gap={12}
-                radius={16}
-                theme="light"
-                glowColor="#002970"
-                enableBorderGlow={true}
-                enableSpotlight={true}
-                spotlightRadius={280}
-                clickEffect={true}
-                enableTilt={true}
-                enableMagnetism={true}
-              />
-            </div>
           </div>
         )}
 
