@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Clock, ShieldCheck, ShieldAlert } from 'lucide-react';
 
 interface ComplianceSimulatorProps {
   currentHour: number;
@@ -13,32 +13,32 @@ export const ComplianceSimulator: React.FC<ComplianceSimulatorProps> = ({
   const isCompliant = currentHour >= 8 && currentHour < 19;
 
   return (
-    <div className="rounded-xl border border-slate-800/80 bg-slate-900/80 p-3.5 backdrop-blur-md">
+    <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-[#00BAF2]" />
-          <span className="text-xs font-bold tracking-tight text-white uppercase">
-            RBI Recovery Conduct Time-Window Simulator
+          <span className="text-xs font-bold text-slate-800 uppercase tracking-tight">
+            RBI Contact Hours Check (08:00–19:00 IST)
           </span>
         </div>
 
-        {/* Live Status Pill */}
+        {/* Status Pill */}
         <div
           className={`flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
             isCompliant
-              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-              : 'bg-red-500/15 text-red-400 border border-red-500/30 animate-pulse'
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : 'bg-red-50 text-red-700 border border-red-200 animate-pulse'
           }`}
         >
           {isCompliant ? (
             <>
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span>08:00–19:00 IST PERMITTED</span>
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+              <span>Permitted</span>
             </>
           ) : (
             <>
-              <ShieldAlert className="h-3.5 w-3.5" />
-              <span>OUTREACH BLOCKED PER RBI CODE</span>
+              <ShieldAlert className="h-3.5 w-3.5 text-red-600" />
+              <span>Outreach Blocked</span>
             </>
           )}
         </div>
@@ -46,14 +46,12 @@ export const ComplianceSimulator: React.FC<ComplianceSimulatorProps> = ({
 
       {/* Scrub Slider */}
       <div className="mt-3">
-        <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1">
-          <span>00:00 (Night)</span>
-          <span className="font-bold text-[#00BAF2]">08:00 (RBI Open)</span>
-          <span className="text-white font-bold bg-[#002970] px-2 py-0.5 rounded border border-[#00BAF2]/40">
+        <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 mb-1">
+          <span>08:00 IST (Open)</span>
+          <span className="font-bold text-[#002970] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
             Simulated: {currentHour.toString().padStart(2, '0')}:00 IST
           </span>
-          <span className="font-bold text-[#F59E0B]">19:00 (RBI Cutoff)</span>
-          <span>23:59 (Night)</span>
+          <span>19:00 IST (Cutoff)</span>
         </div>
 
         <input
@@ -63,27 +61,26 @@ export const ComplianceSimulator: React.FC<ComplianceSimulatorProps> = ({
           step="1"
           value={currentHour}
           onChange={(e) => onHourChange(parseInt(e.target.value, 10))}
-          className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-[#00BAF2] focus:outline-none"
+          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#002970] focus:outline-none"
         />
 
-        {/* Informational Guidance */}
-        <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
-          <p>
+        <div className="mt-2 flex items-center justify-between text-[11px] text-slate-600">
+          <span>
             {isCompliant ? (
-              <span className="text-emerald-400">
-                ✓ Full autonomous voice, Soundbox & WhatsApp restructuring enabled.
+              <span className="text-emerald-700 font-medium">
+                ✓ Fair Practices Code active: Voice & WhatsApp communication permitted.
               </span>
             ) : (
-              <span className="text-red-400">
-                ⚠️ Outreach paused to protect borrower from harassment. Queued for 08:05 AM T+1 morning run.
+              <span className="text-red-600 font-medium">
+                ⚠️ Outside RBI window: Messages held until 08:05 AM T+1 sweep to prevent harassment.
               </span>
             )}
-          </p>
+          </span>
           <button
             onClick={() => onHourChange(14)}
-            className="text-[10px] text-[#00BAF2] hover:underline"
+            className="text-[10px] text-[#00BAF2] hover:underline flex-shrink-0 ml-2"
           >
-            Reset to 14:00 IST
+            Reset to 14:00
           </button>
         </div>
       </div>

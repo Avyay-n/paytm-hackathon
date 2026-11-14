@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Radio, CheckCircle, Sparkles, Play, RotateCcw } from 'lucide-react';
-import { BorderBeam } from './ui/BorderBeam';
+import { Radio, CheckCircle, Sparkles, Play, RotateCcw } from 'lucide-react';
 
 interface SoundboxWidgetProps {
   deviceId: string;
@@ -18,8 +17,6 @@ interface SoundboxWidgetProps {
 export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
   deviceId,
   heartbeatPct,
-  merchantName,
-  currentEdi,
   stepDownEdi,
   audioText,
   isPlayingAudio = false,
@@ -61,7 +58,7 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
       osc2.start(now + 0.12);
       osc2.stop(now + 0.55);
     } catch {
-      // AudioContext unavailable in silent environments
+      // AudioContext unavailable in silent mode
     }
   };
 
@@ -72,7 +69,7 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
     if (now - lastTapTime < 700) {
       // Double tap registered!
       setTapCount(0);
-      setButtonFeedback('✓ Double-Tap Confirmed: Restructuring to ₹150/day committed!');
+      setButtonFeedback('✓ Double-Tap Confirmed: Plan committed to database!');
       onDoubleTapConfirm();
       setTimeout(() => setButtonFeedback(null), 3500);
     } else {
@@ -89,96 +86,62 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
   const isOnline = heartbeatPct > 50;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#001844] via-[#002970] to-[#070B14] p-4 text-white shadow-2xl border border-[#00BAF2]/30">
-      <BorderBeam colorFrom="#00BAF2" colorTo="#FF6B35" duration={8} />
-
-      {/* Top Soundbox Header Bar */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      {/* Top Header */}
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
-          {/* Paytm Brand Logo Badge */}
-          <div className="flex items-center gap-1.5 rounded-lg bg-[#00BAF2] px-2.5 py-1 text-xs font-black tracking-tight text-[#002970]">
-            <span>paytm</span>
-            <span className="text-[10px] font-bold text-white bg-[#002970] px-1 rounded">Soundbox 4.0</span>
+          <div className="flex items-center gap-1 rounded bg-[#002970] px-2 py-0.5 text-white font-bold text-xs">
+            <span className="text-[#00BAF2]">paytm</span>
+            <span className="text-[10px] bg-white/20 px-1 rounded ml-0.5">Soundbox 4.0</span>
           </div>
-          <span className="font-mono text-xs text-slate-300">{deviceId}</span>
+          <span className="font-mono text-xs text-slate-500">{deviceId}</span>
         </div>
 
-        {/* Heartbeat Status Indicator */}
-        <div className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-            isOnline ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/15 text-red-400 border border-red-500/30'
-          }`}>
-            <span className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-400 animate-ping' : 'bg-red-400'}`} />
-            <span>{isOnline ? `${heartbeatPct}% Uptime` : 'Offline (0.0%)'}</span>
-          </div>
+        {/* Heartbeat Status */}
+        <div className="flex items-center gap-1.5">
+          <span className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+          <span className={`text-xs font-semibold ${isOnline ? 'text-emerald-700' : 'text-red-600'}`}>
+            {isOnline ? `${heartbeatPct}% Uptime` : 'Offline'}
+          </span>
         </div>
       </div>
 
-      {/* Center Soundbox Chassis Visual with Speaker Mesh */}
-      <div className="my-3 flex items-center gap-4 rounded-xl bg-slate-950/60 p-3.5 border border-white/5 backdrop-blur-md">
-        {/* Pulsing Speaker Cone & LED Ring */}
-        <div className="relative flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#002970] to-slate-900 border-2 border-[#00BAF2]/40 shadow-inner">
-          {/* LED Ring */}
-          <div className={`absolute inset-1 rounded-xl transition-all duration-300 ${
-            isPlayingAudio
-              ? 'border-2 border-[#FF6B35] shadow-[0_0_20px_#FF6B35] animate-pulse'
-              : isRestructured
-              ? 'border-2 border-emerald-400 shadow-[0_0_15px_#10B981]'
-              : 'border border-[#00BAF2]/40'
-          }`} />
-
-          {/* Perforated Speaker Grill Matrix */}
-          <div className="grid grid-cols-4 gap-1 p-2 opacity-70">
-            {Array.from({ length: 16 }).map((_, i) => (
-              <div
-                key={i}
-                className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                  isPlayingAudio
-                    ? i % 2 === 0
-                      ? 'bg-[#FF6B35]'
-                      : 'bg-[#F59E0B]'
-                    : isRestructured
-                    ? 'bg-emerald-400'
-                    : 'bg-[#00BAF2]/40'
-                }`}
-              />
-            ))}
-          </div>
-
-          <Radio className={`absolute h-5 w-5 ${isPlayingAudio ? 'text-[#FF6B35] animate-bounce' : 'text-[#00BAF2]'}`} />
+      {/* Center Soundbox Voice Bar */}
+      <div className="my-3 flex items-center gap-3 rounded-lg bg-slate-50 p-3 border border-slate-200/70">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#002970] to-[#00BAF2] text-white shadow-sm">
+          <Radio className={`h-5 w-5 ${isPlayingAudio ? 'animate-bounce text-orange-300' : 'text-white'}`} />
         </div>
 
-        {/* Live Audio & Restructure Information */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold tracking-wide uppercase text-[#00BAF2] flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-[#FF6B35]" />
-              Sarvam AI Indic Voice Rail
+            <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-orange-500" />
+              Sarvam AI Voice Rail
             </span>
             <button
               onClick={onPlayAudio}
-              className="flex items-center gap-1 rounded bg-[#FF6B35]/20 hover:bg-[#FF6B35]/30 text-[#FF6B35] px-2 py-0.5 text-xs font-semibold transition-colors"
+              className="flex items-center gap-1 rounded bg-orange-100 hover:bg-orange-200 text-orange-800 px-2 py-0.5 text-[11px] font-semibold transition-colors"
             >
               {isPlayingAudio ? <RotateCcw className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
               <span>{isPlayingAudio ? 'Playing' : 'Replay Voice'}</span>
             </button>
           </div>
 
-          <p className="mt-1 line-clamp-2 text-xs text-slate-300 italic">
+          <p className="mt-1 line-clamp-2 text-xs text-slate-600 italic">
             "{audioText || `Paytm par ek sau pachaas rupaye ki revised daily EDI accept karne ke liye button double-tap karein.`}"
           </p>
 
-          {/* Reactive Waveform Bars */}
-          <div className="mt-2 flex items-center gap-1 h-4">
-            {Array.from({ length: 24 }).map((_, i) => {
-              const heights = [4, 8, 14, 16, 12, 6, 10, 16, 14, 8, 12, 16, 10, 6, 14, 16, 12, 8, 4, 10, 14, 8, 6, 4];
-              const h = isPlayingAudio ? heights[i % heights.length] : 4;
+          {/* Clean Reactive Waveform */}
+          <div className="mt-2 flex items-center gap-1 h-3">
+            {Array.from({ length: 20 }).map((_, i) => {
+              const heights = [3, 6, 12, 14, 10, 5, 8, 14, 12, 6, 10, 14, 8, 4, 12, 14, 10, 6, 3, 8];
+              const h = isPlayingAudio ? heights[i % heights.length] : 3;
               return (
                 <div
                   key={i}
                   style={{ height: `${h}px` }}
                   className={`w-1 rounded-full transition-all duration-150 ${
-                    isPlayingAudio ? 'bg-gradient-to-t from-[#FF6B35] to-[#F59E0B]' : 'bg-slate-700'
+                    isPlayingAudio ? 'bg-orange-500' : 'bg-slate-300'
                   }`}
                 />
               );
@@ -187,34 +150,34 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
         </div>
       </div>
 
-      {/* 2-Way Tactile Confirmation Hardware Button */}
-      <div className="mt-2">
+      {/* Double-Tap Hardware Confirmation Button */}
+      <div>
         <button
           onClick={handleButtonPress}
           disabled={!isOnline || isRestructured}
-          className={`group relative w-full overflow-hidden rounded-xl py-3 px-4 text-center font-bold text-sm transition-all duration-200 active:scale-[0.98] ${
+          className={`w-full rounded-lg py-2.5 px-4 text-center font-bold text-xs transition-all shadow-sm ${
             isRestructured
-              ? 'bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 cursor-default'
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 cursor-default'
               : !isOnline
-              ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-              : 'bg-gradient-to-r from-[#00BAF2] via-[#003B95] to-[#002970] text-white hover:brightness-110 shadow-lg hover:shadow-[#00BAF2]/30 border border-[#00BAF2]'
+              ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+              : 'bg-[#002970] hover:bg-[#003B95] text-white active:scale-[0.99]'
           }`}
         >
           <div className="flex items-center justify-center gap-2">
             {isRestructured ? (
               <>
-                <CheckCircle className="h-4 w-4 text-emerald-400" />
+                <CheckCircle className="h-4 w-4 text-emerald-600" />
                 <span>Restructuring Active (₹{stepDownEdi}/day Committed)</span>
               </>
             ) : (
               <>
-                <span className="flex h-3 w-3 items-center justify-center rounded-full bg-white text-[10px] text-[#002970] font-black">
+                <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#00BAF2] text-[9px] text-[#002970] font-black">
                   {tapCount > 0 ? '2' : '🔘'}
                 </span>
                 <span>
                   {tapCount > 0
-                    ? `Click Once More to Confirm ₹${stepDownEdi}/day EDI!`
-                    : `Double-Tap Soundbox Button: Accept ₹${stepDownEdi}/day EDI`}
+                    ? `Click Once More to Confirm ₹${stepDownEdi}/day Plan!`
+                    : `Double-Tap Soundbox Button: Accept ₹${stepDownEdi}/day Plan`}
                 </span>
               </>
             )}
@@ -222,7 +185,7 @@ export const SoundboxWidget: React.FC<SoundboxWidgetProps> = ({
         </button>
 
         {buttonFeedback && (
-          <p className="mt-1.5 text-center font-mono text-xs text-[#00BAF2] animate-pulse">
+          <p className="mt-1.5 text-center font-mono text-xs text-blue-700 font-semibold animate-pulse">
             {buttonFeedback}
           </p>
         )}

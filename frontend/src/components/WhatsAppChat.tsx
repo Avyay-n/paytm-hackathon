@@ -44,7 +44,6 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
   // Sarvam AI Saaras v4 Live Speech-to-Text handler
   const handleMicClick = async () => {
     if (isRecording) {
-      // Stop recording and transcribe
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
       }
@@ -79,15 +78,13 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
           } finally {
             setIsTranscribing(false);
           }
-          // Stop all mic tracks
           stream.getTracks().forEach((track) => track.stop());
         };
 
         mediaRecorder.start();
         setIsRecording(true);
       } catch (err) {
-        // Fallback for browsers or restricted mic: simulate Sarvam STT prompt directly
-        console.warn('Microphone permission not granted, triggering Sarvam STT preset:', err);
+        console.warn('Microphone fallback triggered:', err);
         setIsTranscribing(true);
         try {
           const res = await transcribeAudio(undefined, language === 'Telugu' ? 'te-IN' : 'hi-IN');
@@ -100,111 +97,92 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
   };
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-slate-800 bg-[#0B1120] overflow-hidden shadow-2xl">
-      {/* WhatsApp / Paytm Business Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 py-3">
+    <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-[#002970] to-[#00BAF2] text-white font-bold">
-            <span>{merchantName.charAt(0)}</span>
-            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-400 border-2 border-slate-900" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#002970] text-white font-bold text-xs">
+            {merchantName.charAt(0)}
           </div>
 
           <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="text-sm font-bold text-white">{businessName}</h3>
-              <CheckCheck className="h-4 w-4 text-[#00BAF2]" />
+              <h3 className="text-xs font-bold text-slate-900">{businessName}</h3>
+              <CheckCheck className="h-3.5 w-3.5 text-[#00BAF2]" />
             </div>
-            <p className="text-[11px] text-slate-400">
-              {merchantName} • <span className="text-[#00BAF2]">{language}</span>
+            <p className="text-[11px] text-slate-500">
+              {merchantName} • <span className="text-[#002970] font-medium">{language}</span>
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+          <span className="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
             DPDP VERIFIED
           </span>
           <button
             onClick={() => setShowNativeScript(!showNativeScript)}
-            className="flex items-center gap-1 rounded bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-xs text-slate-200 transition-colors"
+            className="flex items-center gap-1 rounded bg-white hover:bg-slate-100 px-2 py-1 text-xs text-slate-700 border border-slate-200 transition-colors"
           >
-            <Languages className="h-3.5 w-3.5 text-[#FF6B35]" />
-            <span>{showNativeScript ? 'Script: Latin' : 'Script: Native'}</span>
+            <Languages className="h-3 w-3 text-orange-600" />
+            <span className="text-[11px]">{showNativeScript ? 'Latin' : 'Native Script'}</span>
           </button>
         </div>
       </div>
 
-      {/* Chat Messages Stream */}
-      <div className="flex-1 space-y-4 overflow-y-auto p-4">
-        {/* End-to-End Encryption Notice */}
-        <div className="mx-auto max-w-xs rounded-lg bg-slate-950/80 px-3 py-1.5 text-center text-[10px] text-slate-400 border border-slate-800/80 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="h-3 w-3 text-emerald-400" />
-          <span>Paytm Lending & RBI Fair Practices Encrypted Stream</span>
+      {/* Messages Stream */}
+      <div className="flex-1 space-y-3.5 overflow-y-auto p-4 bg-slate-50/40">
+        <div className="mx-auto max-w-xs rounded-full bg-slate-100 px-3 py-1 text-center text-[10px] text-slate-500 border border-slate-200/80 flex items-center justify-center gap-1">
+          <ShieldCheck className="h-3 w-3 text-emerald-600" />
+          <span>Paytm Lending & RBI Fair Practices Encrypted</span>
         </div>
 
-        {/* Incoming Recovery Offer Message Bubble */}
         {chatMessage ? (
-          <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-slate-900 p-4 border border-slate-800/90 shadow-md">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
-              <span className="flex items-center gap-1.5 text-xs font-bold text-[#00BAF2]">
-                <Sparkles className="h-3.5 w-3.5 text-[#FF6B35]" />
+          <div className="max-w-[94%] rounded-xl rounded-tl-sm bg-white p-3.5 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
+              <span className="flex items-center gap-1 text-xs font-bold text-[#002970]">
+                <Sparkles className="h-3 w-3 text-orange-500" />
                 Paytm Recovery Copilot
               </span>
               <span className="font-mono text-[10px] text-slate-400">14:02 IST</span>
             </div>
 
-            {/* Message Body */}
-            <p className="whitespace-pre-line text-xs text-slate-200 leading-relaxed indic-text">
+            <p className="whitespace-pre-line text-xs text-slate-700 leading-relaxed indic-text">
               {showNativeScript && chatMessage.tts_native_text
                 ? chatMessage.tts_native_text
                 : chatMessage.display_text}
             </p>
 
-            {/* Interactive Sarvam Voice Pill Player */}
-            <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-950/80 p-2.5 border border-slate-800">
+            {/* Sarvam Audio Player */}
+            <div className="mt-3 flex items-center justify-between rounded-lg bg-orange-50/70 p-2 border border-orange-200/60">
               <button
                 onClick={onPlayVoice}
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] px-3 py-1 text-xs font-bold text-slate-950 hover:brightness-110 transition-all"
+                className="flex items-center gap-1.5 rounded-md bg-orange-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-orange-700 transition-all shadow-sm"
               >
-                <Volume2 className="h-4 w-4" />
-                <span>{isPlayingVoice ? 'Pause Audio' : 'Listen Sarvam Voice'}</span>
+                <Volume2 className="h-3.5 w-3.5" />
+                <span>{isPlayingVoice ? 'Pause Voice' : 'Listen Sarvam Voice'}</span>
               </button>
 
-              {/* Reactive Soundwave Bars */}
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 16 }).map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      height: isPlayingVoice ? `${Math.sin(i * 0.7) * 8 + 12}px` : '4px',
-                    }}
-                    className={`w-1 rounded-full transition-all duration-150 ${
-                      isPlayingVoice ? 'bg-[#FF6B35]' : 'bg-slate-700'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <span className="font-mono text-[10px] text-slate-400">
+              <span className="font-mono text-[10px] text-orange-800">
                 {chatMessage.audio?.provider || 'Sarvam Bulbul v4'}
               </span>
             </div>
 
-            {/* Quick Action Chips */}
+            {/* Action Chips */}
             {chatMessage.options && !kfsDocument && (
-              <div className="mt-3 flex flex-wrap gap-2 pt-2 border-t border-slate-800/60">
+              <div className="mt-3 flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
                 {chatMessage.options.map((opt) => (
                   <button
                     key={opt.id}
                     onClick={() => onSelectOption(opt.id)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${
+                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all active:scale-95 ${
                       opt.variant === 'cyan'
-                        ? 'bg-[#00BAF2] text-[#002970] hover:bg-[#00BAF2]/90 shadow-md'
+                        ? 'bg-[#002970] text-white hover:bg-[#003B95]'
                         : opt.variant === 'indigo'
-                        ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/40'
+                        ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100'
                         : opt.variant === 'amber'
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
                     {opt.label}
@@ -214,12 +192,12 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
             )}
           </div>
         ) : (
-          <div className="p-4 text-center text-xs text-slate-500 italic">
+          <div className="p-4 text-center text-xs text-slate-400 italic">
             Connecting to merchant telemetry and formulating recovery offer...
           </div>
         )}
 
-        {/* Embedded Digital KFS Pass when Restructured */}
+        {/* Embedded KFS Card when Restructured */}
         {kfsDocument && (
           <div className="mt-3">
             <KFSMandateCard kfs={kfsDocument} />
@@ -227,30 +205,30 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
         )}
       </div>
 
-      {/* Bottom Message Input Bar with Sarvam Live Mic */}
+      {/* Message Input Bar */}
       <form
         onSubmit={handleSend}
-        className="flex items-center gap-2 border-t border-slate-800 bg-slate-900/90 p-3"
+        className="flex items-center gap-2 border-t border-slate-200 bg-white p-3"
       >
         <button
           type="button"
           onClick={handleMicClick}
           disabled={isTranscribing}
           title={isRecording ? 'Click to stop and transcribe' : 'Click to speak using Sarvam Saaras v4 STT'}
-          className={`flex h-9 w-9 items-center justify-center rounded-full transition-all active:scale-95 ${
+          className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${
             isRecording
-              ? 'bg-red-500 text-white animate-pulse shadow-[0_0_15px_#EF4444]'
+              ? 'bg-red-500 text-white animate-pulse'
               : isTranscribing
-              ? 'bg-amber-500 text-slate-950'
-              : 'bg-gradient-to-r from-[#FF6B35] to-[#F59E0B] text-slate-950 hover:brightness-110'
+              ? 'bg-amber-100 text-amber-800'
+              : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
           }`}
         >
           {isTranscribing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : isRecording ? (
-            <MicOff className="h-4 w-4" />
+            <MicOff className="h-3.5 w-3.5" />
           ) : (
-            <Mic className="h-4 w-4" />
+            <Mic className="h-3.5 w-3.5" />
           )}
         </button>
 
@@ -260,19 +238,19 @@ export const WhatsAppChat: React.FC<WhatsAppChatProps> = ({
           onChange={(e) => setInputText(e.target.value)}
           placeholder={
             isRecording
-              ? 'Listening to merchant voice (Speak now)...'
+              ? 'Listening to merchant voice...'
               : isTranscribing
-              ? 'Sarvam Saaras v4 transcribing Indic audio...'
+              ? 'Sarvam Saaras v4 transcribing...'
               : `Reply in ${language}... (Click mic to speak)`
           }
-          className="flex-1 rounded-xl bg-slate-950 px-3.5 py-2 text-xs text-white placeholder-slate-500 border border-slate-800 focus:border-[#00BAF2] focus:outline-none"
+          className="flex-1 rounded-lg bg-slate-50 px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 border border-slate-200 focus:border-[#00BAF2] focus:bg-white focus:outline-none"
         />
 
         <button
           type="submit"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-[#00BAF2] text-[#002970] hover:bg-[#00BAF2]/90 active:scale-95"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-[#002970] text-white hover:bg-[#003B95] active:scale-95 transition-colors"
         >
-          <Send className="h-4 w-4" />
+          <Send className="h-3.5 w-3.5" />
         </button>
       </form>
     </div>

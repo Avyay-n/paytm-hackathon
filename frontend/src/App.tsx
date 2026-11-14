@@ -23,7 +23,6 @@ import { ComplianceSimulator } from './components/ComplianceSimulator';
 import { SoundboxWidget } from './components/SoundboxWidget';
 import { WhatsAppChat } from './components/WhatsAppChat';
 import { OpsCommandCenter } from './components/OpsCommandCenter';
-import { Sparkles, ShieldCheck, ArrowRight, Layers } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
@@ -48,7 +47,7 @@ export const App: React.FC = () => {
     loadAllMerchants();
   }, []);
 
-  // When selected merchant or currentHour changes, load details & execute pipeline
+  // When selected merchant changes, load details & execute pipeline
   useEffect(() => {
     if (selectedMerchantId) {
       loadMerchantData(selectedMerchantId, currentHour);
@@ -66,23 +65,19 @@ export const App: React.FC = () => {
 
   const loadMerchantData = async (merchantId: string, hour: number) => {
     try {
-      // 1. Fetch merchant detail
       const detail = await fetchMerchantDetail(merchantId);
       setCurrentMerchant(detail.merchant);
       setCurrentLoan(detail.loan);
       setCurrentMacro(detail.macro_signal);
 
-      // 2. Fetch settlements
       const setts = await fetchSettlements(merchantId);
       setSettlements(setts);
 
-      // 3. Fetch radar
       if (detail.merchant.pin_code) {
         const radar = await fetchMacroRadar(detail.merchant.pin_code);
         setRadarData(radar);
       }
 
-      // 4. Run autonomous 5-node pipeline
       const pipelineRes = await runPipeline({
         merchant_id: merchantId,
         simulated_hour_ist: hour,
@@ -98,7 +93,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Handle simulated hour scrub
   const handleHourChange = async (hour: number) => {
     setCurrentHour(hour);
     if (!selectedMerchantId) return;
@@ -118,7 +112,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Handle Double-Tap Soundbox Confirm Button
   const handleDoubleTapSoundbox = async () => {
     if (!selectedMerchantId) return;
     try {
@@ -136,7 +129,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Handle Option selection in WhatsApp
   const handleSelectOption = async (optionId: string) => {
     if (!selectedMerchantId) return;
     let trigger = 'WHATSAPP_ACCEPT_OPTION_A';
@@ -161,7 +153,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Handle custom user chat reply
   const handleSendCustomMessage = async (msg: string) => {
     if (!selectedMerchantId) return;
     try {
@@ -178,7 +169,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Play voice synthesis
   const playVoice = (textOverride?: string) => {
     if (isPlayingAudio) {
       if (audioRef.current) {
@@ -200,7 +190,6 @@ export const App: React.FC = () => {
       return;
     }
 
-    // Fallback to browser Web Speech API
     if ('speechSynthesis' in window) {
       const textToSpeak =
         textOverride ||
@@ -225,7 +214,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Reset database to initial seed state
   const handleReset = async () => {
     setIsResetting(true);
     try {
@@ -243,8 +231,8 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-white">
-      {/* Global Top Bar */}
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900">
+      {/* Top Header */}
       <Header
         merchants={merchants}
         selectedMerchantId={selectedMerchantId}
@@ -254,55 +242,11 @@ export const App: React.FC = () => {
         currentHour={currentHour}
       />
 
-      {/* Scrollytelling Stage 1: Compact Hero Architecture Banner */}
-      <div className="border-b border-slate-800/80 bg-gradient-to-b from-[#001844]/60 to-transparent px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-[#00BAF2]/10 px-2.5 py-0.5 text-xs font-bold text-[#00BAF2] border border-[#00BAF2]/30 flex items-center gap-1">
-                <Sparkles className="h-3 w-3 text-[#FF6B35]" />
-                Track 3: Autonomous AI Teammates
-              </span>
-              <span className="text-xs text-slate-400">
-                Enterprise LSP Micro-Lending Collections & RBI Fair Practices Engine
-              </span>
-            </div>
-            <h2 className="mt-1 text-lg font-extrabold tracking-tight text-white">
-              Diagnosing Regional Shocks Before <span className="text-amber-400">SMA-0</span> Becomes <span className="text-red-400">NPA</span>
-            </h2>
-          </div>
-
-          {/* 3 Architecture Pills */}
-          <div className="hidden lg:flex items-center gap-2 text-xs">
-            <div className="flex items-center gap-1.5 rounded-lg bg-slate-900/90 px-3 py-1.5 border border-slate-800">
-              <span className="font-mono text-[#00BAF2] font-bold">1</span>
-              <span className="text-slate-300">Pin-Code Peer & QR Telemetry</span>
-            </div>
-            <ArrowRight className="h-3.5 w-3.5 text-slate-600" />
-            <div className="flex items-center gap-1.5 rounded-lg bg-slate-900/90 px-3 py-1.5 border border-slate-800">
-              <span className="font-mono text-emerald-400 font-bold">2</span>
-              <span className="text-slate-300">RBI 08:00–19:00 & DPDP Gatekeeper</span>
-            </div>
-            <ArrowRight className="h-3.5 w-3.5 text-slate-600" />
-            <div className="flex items-center gap-1.5 rounded-lg bg-slate-900/90 px-3 py-1.5 border border-slate-800">
-              <span className="font-mono text-[#FF6B35] font-bold">3</span>
-              <span className="text-slate-300">2-Way Soundbox & Digital KFS</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Split-Screen Command Center */}
-      <main className="grid grid-cols-12 gap-6 p-6">
-        {/* LEFT PANE (45% Width = 5.5 cols): Merchant Experience */}
+      {/* Main Split-Screen Workspace (Clean 2-Column Layout) */}
+      <main className="grid grid-cols-12 gap-5 p-5 max-w-[1600px] mx-auto">
+        {/* LEFT COLUMN (Borrower Experience & Soundbox): 4.5 cols */}
         <section className="col-span-12 lg:col-span-5 space-y-4">
-          {/* RBI Conduct Time-Window Simulator */}
-          <ComplianceSimulator
-            currentHour={currentHour}
-            onHourChange={handleHourChange}
-          />
-
-          {/* Interactive Paytm Soundbox Hardware Simulator */}
+          {/* Interactive Paytm Soundbox Simulator */}
           {currentMerchant && currentLoan && (
             <SoundboxWidget
               deviceId={currentMerchant.soundbox_device_id}
@@ -318,9 +262,15 @@ export const App: React.FC = () => {
             />
           )}
 
+          {/* RBI Conduct Time-Window Simulator */}
+          <ComplianceSimulator
+            currentHour={currentHour}
+            onHourChange={handleHourChange}
+          />
+
           {/* WhatsApp / Paytm Business Chat Stream */}
           {currentMerchant && (
-            <div className="h-[480px]">
+            <div className="h-[460px]">
               <WhatsAppChat
                 merchantName={currentMerchant.name}
                 businessName={currentMerchant.business_name}
@@ -336,7 +286,7 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {/* RIGHT PANE (55% Width = 7 cols): NBFC & Paytm Ops Command Center */}
+        {/* RIGHT COLUMN (Lender Ops & Intelligence): 7.5 cols */}
         <section className="col-span-12 lg:col-span-7">
           <OpsCommandCenter
             loan={currentLoan}
